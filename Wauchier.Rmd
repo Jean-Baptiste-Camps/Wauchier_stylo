@@ -1,0 +1,360 @@
+---
+title: "Wauchier"
+author: "JB Camps"
+date: "23 novembre 2018 / 30 juin 2019 (Paris, Rome, Turin, Eurostar, )"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<!-- TODO: 
+- est-ce que la coupe en 8 classes est la plus pertinente philologiquement? Voir avec Ariane.
+- remove all punctuation;
+- virer Bestiaire et Response?
+- concaténer textes trop courts pour gagner un peu de fiabilité?
+- groupe 41-45: est-ce que ça mériterait d'être un autre légendier ? Car pas forcément dans C.
+-->
+
+
+# Preparations 
+
+## Load libraries and functions
+
+```{r}
+library("cluster")
+library("dendextend")
+source("functions.R")
+```
+
+
+# Corpus description and selection
+
+## Load data
+
+```{r}
+# Get data with Stylo
+# data = stylo::load.corpus.and.parse(corpus.dir = "dh-meier-data/output/transkribus/tokenized/boudams/", features = "w", ngram.size = 1, preserve.case = FALSE)
+# Get freq lists
+#data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
+# Write it
+#write.csv(as.matrix(data), "data/transkr_expanded_words.csv")
+data = read.csv("data/transkr_expanded_words.csv", header = TRUE, row.names = 1)
+data = t(data)
+```
+
+## Text lengths
+
+```{r}
+nwords = colSums(data)
+summary(nwords)
+boxplot(nwords)
+boxplot(nwords)$out
+head(sort(nwords), n = 15)
+
+toKeep = colnames(data)[nwords > 1000]
+
+toKeep = toKeep[grep("Bestiaire", toKeep, invert = TRUE)]
+
+df = as.data.frame(nwords)
+
+ggplot(df, aes(x="", y=nwords)) + geom_violin() + geom_boxplot(width=0.3) +  theme(axis.text.y = element_text(size = rel(1.4)), axis.title = element_text(size = rel(1.4))) + xlab("Est. length in words of corpus texts") + scale_y_continuous(breaks=c(0, 2500, 5000, 7500, 10000, 12500, 15000, 17500))
+
+```
+
+# Transkribus raw data
+
+## 3-grams from raw data
+
+## Load data
+
+```{r}
+# Get data with Stylo
+#data = stylo::load.corpus.and.parse(corpus.dir = "dh-meier-data/output/transkribus/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
+# Get freq lists
+#data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
+# Write it
+#write.csv(as.matrix(data), "data/transkr_raw_char3grams.csv")
+data = read.csv("data/transkr_raw_char3grams.csv", header = TRUE, row.names = 1)
+data = t(data)
+data = data[, toKeep]
+data = data[rowSums(data) > 0, ]
+```
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = data
+# Selection based on Moisl 2011
+select = selection(d, z = 1.645)
+select = select[,4]
+# Normalisations
+d = relativeFreqs(d)
+# save data for robustness checks
+Raw3grSave = d
+d = d[select,]
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHRaw3gr = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotRaw3grams = cahPlotCol(myCAH, k = 9, main = "Characters 3-grams from raw data (Transkr)")
+
+somCAH = somCluster(d)
+somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
+```
+
+<!-- 
+# Transkribus tokenized data
+
+## Affixes from tokenized data
+
+## Unstandardised words from tokenized data
+
+## Unstandardised function words from tokenized data
+-->
+
+# Transkribus expanded data
+
+## Load data
+
+```{r}
+data = read.csv("data/transkr_expanded_words.csv", header = TRUE, row.names = 1)
+data = t(data)
+data = data[, toKeep]
+data = data[rowSums(data) > 0, ]
+```
+
+## Forms from expanded data
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = data
+# Selection based on Moisl 2011
+select = selection(d, z = 1.645)
+select = select[,4]
+# Normalisations
+d = relativeFreqs(d)
+# save data for robustness checks
+WordsSave = d
+d = d[select,]
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHForms = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotForms = cahPlotCol(myCAH, k = 9, main = "Expanded word forms (Transkr/Boudams/Pie)")
+
+somCAH = somCluster(d)
+somplotForms = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded word forms (Transkr/Boudams/Pie)")
+```
+
+## Affixes from expanded data
+
+```{r}
+# Creating affixes database from all words
+dataAffs = countAffixes(data)
+```
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = dataAffs
+# Selection based on Moisl 2011
+select = selection(d, z = 1.645)
+select = select[,4]
+# Normalisations
+d = relativeFreqs(d)
+d = d[select,]
+AffixesSave = d
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHAffs = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotAffixes = cahPlotCol(myCAH, k = 9, main = "Expanded affixes (Transkr/Boudams/Pie)")
+somCAH = somCluster(d)
+somplotAffixes = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded affixes (Transkr/Boudams/Pie)")
+```
+
+## Unstandardised function words from expanded data
+
+### Create function words list
+
+```{r}
+#labels(sort(rowSums(data), decreasing = TRUE)[1:300])
+# Avec ou sans pronoms ?
+functionWords = source("functionWords.R")$value
+```
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = relativeFreqs(data)
+d = d[functionWords,]
+# save data for robustness checks
+FWSave = d
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHFW = myCAH
+# barplot(sort(myCAH$height))
+plotFW = cahPlotCol(myCAH, k = 8, main = "Function words with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
+#plotCol(myCAH, main = "toto")
+somCAH = somCluster(d)
+somplotFW = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words")
+```
+
+# Transkribus with linguistic annotation
+
+## POS 3-grams
+
+```{r}
+data = read.csv("data/transkr_pos3-gr.csv", header = TRUE, row.names = 1, sep = ";")
+#remove total freq
+data = data[, -1]
+colnames(data) = gsub("^X", "", colnames(data))
+colnames(data) = gsub(".decolumnized", "", colnames(data))
+colnames(data) = gsub("Leg.", "Leg-", colnames(data))
+data = data[, toKeep]
+data = data[rowSums(data) > 0, ]
+data = as.matrix(data)
+```
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = data
+# Selection based on Moisl 2011
+select = selection(d, z = 1.645)
+select = select[,4]
+# Normalisations
+d = relativeFreqs(d)
+# save data for robustness checks
+d = d[select,]
+POS3grSave = d
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHPOS3gr = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotPOS3grams = cahPlotCol(myCAH, k = 9, main = "POS 3-grams (Transkr/Boudams/Pie/Pie)")
+somCAH = somCluster(d)
+somplotPOS3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - POS 3-grams")
+```
+
+## Lemmas
+
+
+```{r}
+data = read.csv("data/transkr_lemmas.csv", header = TRUE, row.names = 1, sep = ";")
+#remove total freq
+data = data[, -1]
+colnames(data) = gsub("^X", "", colnames(data))
+colnames(data) = gsub(".decolumnized", "", colnames(data))
+colnames(data) = gsub("Leg.", "Leg-", colnames(data))
+data = data[, toKeep]
+data = data[rowSums(data) > 0, ]
+data = as.matrix(data)
+```
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = data
+# Selection based on Moisl 2011
+select = selection(d, z = 1.645)
+select = select[,4]
+# Normalisations
+d = relativeFreqs(d)
+d = d[select,]
+LemmasSave = d
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHLemmas = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotLemmas = cahPlotCol(myCAH, k = 9, main = "Lemmas (Transkr/Boudams/Pie/Pie)")
+somCAH = somCluster(d)
+somplotLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Lemmas")
+```
+
+## Function words from lemmas
+
+```{r}
+# Find function words
+#rownames(data)[1:250]
+functionLemmas = source("functionLemmas.R")$value
+```
+
+### Burrows + vector-length norm
+
+```{r, fig.width=20, fig.height=10, dpi=45}
+d = relativeFreqs(data)
+d = d[functionLemmas,]
+FLSave = d
+d = normalisations(d)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHFL = myCAH
+# barplot(sort(myCAH$height))
+plotFL = cahPlotCol(myCAH, k = 8, main = "Function Lemmas with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
+#plotCol(myCAH, main = "toto")
+somCAH = somCluster(d)
+somplotFL = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words (lemmas)")
+```
+
+# Affixes + POS 3-gr + Function words (lemmas)
+
+```{r}
+data = rbind(AffixesSave, POS3grSave, FLSave)
+```
+
+```{r}
+d = normalisations(data)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHGlob = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotGlob = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (lemmas)")
+somCAH = somCluster(d)
+somplotGlob = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
+```
+
+
+# Plots
+
+## Analyses
+
+```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
+#featlabel = "features of ME ±2σ with conf. > 90%"
+#A = cahPlotCol(CAHLemma, main = "A", xlab = paste( ncol(CAHLemma$data), featlabel), k = 6, lrect = -12)
+# B = cahPlotCol(CAHRhyme, main = "B", xlab = paste( ncol(CAHRhyme$data), featlabel), k = 6, lrect = -7, ylab = " ")
+# C = cahPlotCol(CAHAllWords, main = "C", xlab = paste( ncol(CAHAllWords$data), featlabel), k = 6, ylab = " ")
+# D = cahPlotCol(CAHAffs, main = "D", xlab = paste( ncol(CAHAffs$data), featlabel), k = 6, ylab = " ")
+# E = cahPlotCol(CAHPOS3gr, main = "E", xlab = paste( ncol(CAHPOS3gr$data), featlabel), k = 6, lrect = -12 , ylab = " ")
+# F = cahPlotCol(CAHmfw, main = "F", k = 6, lrect = -5, ylab = " ")
+# gridExtra::grid.arrange(A, B, C, D, E, F, ncol = 2)
+gridExtra::grid.arrange(plotRaw3grams, plotForms, plotAffixes, plotFW, plotLemmas, plotFL, plotPOS3grams, plotGlob, ncol = 2)
+```
+
+
+```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
+gridExtra::grid.arrange(somplotRaw3grams, somplotForms, somplotAffixes, somplotFW, somplotLemmas, somplotFL, somplotPOS3grams, somplotGlob, ncol = 2)
+```
+
+## Robustness
+
+```{r}
+cahList = list(raw3grams = CAHRaw3gr, Forms = CAHForms, Affs = CAHAffs, FW = CAHFW, Lemmas = CAHLemmas, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, Global = CAHGlob)
+compareHC(cahList, k = 9)
+```
+
