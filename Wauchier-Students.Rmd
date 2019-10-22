@@ -3,8 +3,8 @@ title: "Wauchier"
 author: "JB Camps"
 date: "23 novembre 2018 / 30 juin 2019 (Paris, Rome, Turin, Eurostar, )"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -41,8 +41,8 @@ source("functions.R")
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
-#write.csv(as.matrix(data), "data/transkr_students_expanded_words.csv")
-data = read.csv("data/transkr_students_expanded_words.csv", header = TRUE, row.names = 1)
+#write.csv(as.matrix(data), "data/transkr_student_expanded_words.csv")
+data = read.csv("data/transkr_student_expanded_words.csv", header = TRUE, row.names = 1)
 data = t(data)
 ```
 
