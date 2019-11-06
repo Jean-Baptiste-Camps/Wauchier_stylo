@@ -1,0 +1,51 @@
+---
+title: "Character repartitions"
+author: "Thibault Clérice"
+date: "10/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("ggplot2")
+```
+
+# OCR Training set
+
+## Load data
+
+```{r}
+data = read.csv("pipeline/chars.csv", header = TRUE, row.names = 1)
+# c'en est déjà un
+#df =  as.data.frame(data)
+data = cbind(data, "Pinche")
+colnames(data)[2] = "corpus"
+```
+
+# Students
+
+```{r}
+data_students = read.csv("pipeline/chars_students.csv", header = TRUE, row.names = 1)
+data_students = cbind(data_students, "TNAH")
+colnames(data_students)[2] = "corpus"
+```
+
+# Text lengths
+
+```{r, fig.width=5, fig.height=5, out.width=500, out.height=500, dpi = 300}
+#ggplot(c(df, df_students), aes(x="", y=occs)) + geom_violin() + geom_boxplot(width=0.2) + ylab("Characters with this count") + xlab("Est. count of characters in the TNAH Dataset") + scale_y_log10()
+main = "Violin and boxplot of character frequencies"
+ylab= "Freq"
+df = rbind(data, data_students)
+ggplot(df, aes_(x = quote(corpus), y = quote(occs))) +
+      ggtitle(main) +
+      ylab(ylab) +
+#      xlab(xlab) +
+      geom_violin() + 
+      geom_boxplot(width=0.1) +
+      #theme(axis.text.x = element_text(size = rel(0.7))) +
+  scale_y_log10()
+```
