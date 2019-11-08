@@ -426,5 +426,26 @@ hist(out[, 2])
 ```
 
 
+```{r}
+# ONLY on the three reference analyses
+refCAH = list(raw3grams = CAHRaw3gr, FLPOSandAffs = CAHGlob, WordsLemmas = CAHWordsLemmas)
+
+vol = volatility(refCAH, k = 9)
+
+out = merge(round(vol, digits = 2), nwords, by="row.names", all.x=TRUE, all.y=FALSE)
+
+out[order(out[, "V_i"]), ]
+
+# see if there is a correlation
+reg = lm(out[, 3] ~ out[, 2])
+summary(reg)
+plot(out[, 2], out[, 3])
+abline(reg)
+
+# Et la distrib des VI
+boxplot(out[, 2])
+hist(out[, 2])
+```
+
 
 
