@@ -157,6 +157,65 @@ compareHC = function(cahList, k = "10"){
   return(results)
 }
 
+### Gives, for each HC, three indicators
+# - Purity with regard to Wauchier/non-Wauchier
+# - Quality of clustering with HC
+# - Stability: ARI with regard to a reference HC
+benchmarkHC = function(refCAH, cahList, k = 10){
+  # Prepare results
+  results = matrix(ncol = 4, nrow = length(cahList), 
+                   dimnames = list(labels(cahList), c("N", "CPWauchier", "AC", "CPREF")))
+  for (i in 1:length(cahList)){
+    N = ncol(cahList[[i]]$data)
+    # 1. Purity with regard to Wauchier/non-Wauchier
+    classes1 = cutree(as.hclust(cahList[[i]]), k = k)
+    expected = classes1
+    # Now we set 1 for Wauchier, 2 for NOT Wauchier
+    expected[grep("_Wau_", rownames(cahList[[i]]$data))] = 1
+    expected[grep("_Wau_", rownames(cahList[[i]]$data), invert = TRUE)] = 2
+    CPWauchier = NMF::purity(as.factor(classes1), as.factor(expected))
+    
+    # 2. Quality of clustering with HC
+    AC = cahList[[i]]$ac
+    
+    # 3. Stability: CP with regard to a reference HC
+    
+    classes2 = cutree(as.hclust(refCAH), k = k)
+    CPRef = NMF::purity(as.factor(classes1), as.factor(classes2))
+    
+    results[i, ] = c(N, CPWauchier, AC, CPRef)
+    
+  }
+  
+  return(results)
+}
+
+volatility = function(cahList, k = 9){
+  textsLabels = cahList[[1]]$order.lab
+  results = matrix(nrow = length(textsLabels), ncol = 1, 
+                   dimnames = list(textsLabels, "V_i"))
+  
+  classes = lapply(cahList, as.hclust)
+  classes = lapply(classes, cutree, k = k)
+  nclasses = length(classes)
+  for (i in 1:length(textsLabels)){
+    # Find all X with their freqs. Start with as much row as labels, will remove
+    # unused ones later
+    X = matrix(ncol = 1, nrow = length(textsLabels), dimnames = list(textsLabels, 'Freq'), data = 0)
+    for (j in 1:length(classes)){
+      myMembers = labels(classes[[j]][ classes[[j]] ==  classes[[j]][textsLabels[i]]])
+      X[myMembers, ] = X[myMembers, ] + 1
+    }
+    # Remove 0s
+    X = X[X > 0, ]
+    # Compute index
+    V_i = sum( (X - (nclasses - X) )/ nclasses ) / length(X)
+    results[i, ] = V_i
+  }
+  return(results)
+}
+
+
 ### Plots and layout
 
 #### ACP

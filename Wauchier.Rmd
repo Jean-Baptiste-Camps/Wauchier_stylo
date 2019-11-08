@@ -103,6 +103,7 @@ CAHRaw3gr = myCAH
 plotRaw3grams = cahPlotCol(myCAH, k = 9, main = "Characters 3-grams from raw data (Transkr)")
 
 somCAH = somCluster(d)
+somCAHRaw3gr = somCAH
 somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
 ```
 
@@ -139,8 +140,8 @@ select = select[,4]
 # Normalisations
 d = relativeFreqs(d)
 # save data for robustness checks
-WordsSave = d
 d = d[select,]
+WordsSave = d
 d = normalisations(d)
 myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
 # Save
@@ -150,6 +151,7 @@ CAHForms = myCAH
 plotForms = cahPlotCol(myCAH, k = 9, main = "Expanded word forms (Transkr/Boudams/Pie)")
 
 somCAH = somCluster(d)
+somCAHForms = somCAH
 somplotForms = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded word forms (Transkr/Boudams/Pie)")
 ```
 
@@ -179,6 +181,7 @@ CAHAffs = myCAH
 # barplot(sort(myCAH$height))
 plotAffixes = cahPlotCol(myCAH, k = 9, main = "Expanded affixes (Transkr/Boudams/Pie)")
 somCAH = somCluster(d)
+somCAHAffs = somCAH
 somplotAffixes = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded affixes (Transkr/Boudams/Pie)")
 ```
 
@@ -207,6 +210,7 @@ CAHFW = myCAH
 plotFW = cahPlotCol(myCAH, k = 8, main = "Function words with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
 somCAH = somCluster(d)
+somCAHFW = somCAH
 somplotFW = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words")
 ```
 
@@ -246,6 +250,7 @@ CAHPOS3gr = myCAH
 # barplot(sort(myCAH$height))
 plotPOS3grams = cahPlotCol(myCAH, k = 9, main = "POS 3-grams (Transkr/Boudams/Pie/Pie)")
 somCAH = somCluster(d)
+somCAHPOS3gr = somCAH
 somplotPOS3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - POS 3-grams")
 ```
 
@@ -283,6 +288,7 @@ CAHLemmas = myCAH
 # barplot(sort(myCAH$height))
 plotLemmas = cahPlotCol(myCAH, k = 9, main = "Lemmas (Transkr/Boudams/Pie/Pie)")
 somCAH = somCluster(d)
+somCAHLemmas = somCAH
 somplotLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Lemmas")
 ```
 
@@ -308,6 +314,7 @@ CAHFL = myCAH
 plotFL = cahPlotCol(myCAH, k = 8, main = "Function Lemmas with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
 somCAH = somCluster(d)
+somCAHFL = somCAH
 somplotFL = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words (lemmas)")
 ```
 
@@ -326,11 +333,41 @@ CAHGlob = myCAH
 # barplot(sort(myCAH$height))
 plotGlob = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (lemmas)")
 somCAH = somCluster(d)
+somCAHGlob = somCAH
 somplotGlob = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
 ```
 
 
+# Exp. word-forms+lemmas
+
+
+```{r}
+data = rbind(LemmasSave, WordsSave)
+```
+
+```{r}
+d = normalisations(data)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHWordsLemmas = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotWordsLemmas = cahPlotCol(myCAH, k = 9, main = "Word forms + lemmas")
+somCAH = somCluster(d)
+somCAHWordsLemmas = somCAH
+somplotWordsLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Word forms + lemmas")
+```
+
+
+
 # Plots
+
+## Reference results on the three feature sets
+
+```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
+gridExtra::grid.arrange(plotRaw3grams, somplotRaw3grams, plotGlob, somplotGlob, plotWordsLemmas, somplotWordsLemmas, ncol = 2, left = "Without SOM", right = "With SOM")
+```
+
 
 ## Analyses
 
@@ -354,7 +391,40 @@ gridExtra::grid.arrange(somplotRaw3grams, somplotForms, somplotAffixes, somplotF
 ## Robustness
 
 ```{r}
-cahList = list(raw3grams = CAHRaw3gr, Forms = CAHForms, Affs = CAHAffs, FW = CAHFW, Lemmas = CAHLemmas, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, Global = CAHGlob)
-compareHC(cahList, k = 9)
+cahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FLPOSandAffs = CAHGlob, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas, UnnormFW = CAHFW)
+#compareHC(cahList, k = 9)
+
+benchmark = benchmarkHC(CAHRaw3gr, cahList, k = 9)
+round(benchmark, digits = 2)
+
+# Now with SOM
+cahSOMList = list(raw3grams = somCAHRaw3gr, Affs = somCAHAffs, FunctLemm = somCAHFL, POS3gr = somCAHPOS3gr, FLPOSandAffs = somCAHGlob, Forms = somCAHForms,  Lemmas = somCAHLemmas, WordsLemmas = somCAHWordsLemmas, UnnormFW = somCAHFW)
+
+benchmark = benchmarkHC(CAHRaw3gr, cahSOMList, k = 9)
+round(benchmark, digits = 2)
 ```
+
+## Volatility index
+
+```{r}
+#TODO: add SOMS ?
+vol = volatility(cahList, k = 9)
+
+out = merge(round(vol, digits = 2), nwords, by="row.names", all.x=TRUE, all.y=FALSE)
+
+out[order(out[, "V_i"]), ]
+
+# see if there is a correlation
+reg = lm(out[, 3] ~ out[, 2])
+summary(reg)
+plot(out[, 2], out[, 3])
+abline(reg)
+
+# Et la distrib des VI
+boxplot(out[, 2])
+hist(out[, 2])
+```
+
+
+
 
