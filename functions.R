@@ -158,22 +158,25 @@ compareHC = function(cahList, k = "10"){
 }
 
 ### Gives, for each HC, three indicators
-# - Purity with regard to Wauchier/non-Wauchier
+# - Purity with regard to Meyer Leg. A/B/C and Wauchier
 # - Quality of clustering with HC
 # - Stability: ARI with regard to a reference HC
 benchmarkHC = function(refCAH, cahList, k = 10){
   # Prepare results
   results = matrix(ncol = 4, nrow = length(cahList), 
-                   dimnames = list(labels(cahList), c("N", "CPWauchier", "AC", "CPREF")))
+                   dimnames = list(labels(cahList), c("N", "AC", "CPMeyer", "CPREF")))
   for (i in 1:length(cahList)){
     N = ncol(cahList[[i]]$data)
     # 1. Purity with regard to Wauchier/non-Wauchier
     classes1 = cutree(as.hclust(cahList[[i]]), k = k)
     expected = classes1
     # Now we set 1 for Wauchier, 2 for NOT Wauchier
-    expected[grep("_Wau_", rownames(cahList[[i]]$data))] = 1
-    expected[grep("_Wau_", rownames(cahList[[i]]$data), invert = TRUE)] = 2
-    CPWauchier = NMF::purity(as.factor(classes1), as.factor(expected))
+    
+    expected[grep("Leg.A", rownames(cahList[[i]]$data))] = "Leg-A"
+    expected[grep("Leg.B", rownames(cahList[[i]]$data))] = "Leg-B"
+    expected[grep("Leg.C", rownames(cahList[[i]]$data))] = "Leg-C"
+    expected[grep("_Wau_", rownames(cahList[[i]]$data))] = "Wauchier"
+    CPMeyer = NMF::purity(as.factor(classes1), as.factor(expected))
     
     # 2. Quality of clustering with HC
     AC = cahList[[i]]$ac
@@ -183,10 +186,9 @@ benchmarkHC = function(refCAH, cahList, k = 10){
     classes2 = cutree(as.hclust(refCAH), k = k)
     CPRef = NMF::purity(as.factor(classes1), as.factor(classes2))
     
-    results[i, ] = c(N, CPWauchier, AC, CPRef)
+    results[i, ] = c(N, AC, CPMeyer, CPRef)
     
   }
-  
   return(results)
 }
 
@@ -269,7 +271,7 @@ cahPlot = function(x, main="Plot", xlab = paste(ncol(x$data), "features"), k = 6
 }
 
 
-cahPlotCol = function(x, main="Plot", xlab = paste(ncol(x$data), "features"), k = 3, lth = 7, lrect = -6, cex = 0.7, ylab = "height"){
+cahPlotCol = function(x, main="Plot", xlab = paste(ncol(x$data), "features"), k = 3, lth = 7, lrect = -12, cex = 0.6, ylab = "height"){
   # Redefining labels and  Coloring them
   labels = rep("black", length(x$order.lab))
   labels[grepl('_Leg.C_', x$order.lab)] = "deeppink4"

@@ -337,6 +337,44 @@ somCAHGlob = somCAH
 somplotGlob = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
 ```
 
+# Affixes + POS 3-gr + Function words (unnorm)
+
+
+```{r}
+data = rbind(AffixesSave, POS3grSave, FWSave)
+```
+
+```{r}
+d = normalisations(data)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHGlob2 = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotGlob2 = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (unnorm.)")
+somCAH = somCluster(d)
+somCAHGlob2 = somCAH
+somplotGlob2 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
+```
+
+# Affixes + POS 3-gr + Function words (both)
+
+```{r}
+data = rbind(AffixesSave, POS3grSave, FWSave, FLSave)
+```
+
+```{r}
+d = normalisations(data)
+myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
+# Save
+CAHGlob3 = myCAH
+#TODO: heights
+# barplot(sort(myCAH$height))
+plotGlob3 = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (both)")
+somCAH = somCluster(d)
+somCAHGlob3 = somCAH
+somplotGlob3 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
+```
 
 # Exp. word-forms+lemmas
 
@@ -365,11 +403,10 @@ somplotWordsLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Word forms + 
 ## Reference results on the three feature sets
 
 ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
-gridExtra::grid.arrange(plotRaw3grams, somplotRaw3grams, plotGlob, somplotGlob, plotWordsLemmas, somplotWordsLemmas, ncol = 2, left = "Without SOM", right = "With SOM")
+gridExtra::grid.arrange(plotRaw3grams, plotGlob2, plotWordsLemmas, ncol = 1)
 ```
 
-
-## Analyses
+## Complementary results
 
 ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
 #featlabel = "features of ME ±2σ with conf. > 90%"
@@ -380,60 +417,130 @@ gridExtra::grid.arrange(plotRaw3grams, somplotRaw3grams, plotGlob, somplotGlob, 
 # E = cahPlotCol(CAHPOS3gr, main = "E", xlab = paste( ncol(CAHPOS3gr$data), featlabel), k = 6, lrect = -12 , ylab = " ")
 # F = cahPlotCol(CAHmfw, main = "F", k = 6, lrect = -5, ylab = " ")
 # gridExtra::grid.arrange(A, B, C, D, E, F, ncol = 2)
-gridExtra::grid.arrange(plotRaw3grams, plotForms, plotAffixes, plotFW, plotLemmas, plotFL, plotPOS3grams, plotGlob, ncol = 2)
+gridExtra::grid.arrange(plotAffixes, plotFW, plotFL, plotPOS3grams, plotForms, plotLemmas, ncol = 2)
 ```
 
 
-```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
-gridExtra::grid.arrange(somplotRaw3grams, somplotForms, somplotAffixes, somplotFW, somplotLemmas, somplotFL, somplotPOS3grams, somplotGlob, ncol = 2)
+## Comparison three alternatives, FS2
+```{r}
+gridExtra::grid.arrange(plotGlob, plotGlob2, plotGlob3, ncol = 1)
 ```
+
+
+<!-- ## Analyses -->
+
+<!-- ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100} -->
+<!-- #featlabel = "features of ME ±2σ with conf. > 90%" -->
+<!-- #A = cahPlotCol(CAHLemma, main = "A", xlab = paste( ncol(CAHLemma$data), featlabel), k = 6, lrect = -12) -->
+<!-- # B = cahPlotCol(CAHRhyme, main = "B", xlab = paste( ncol(CAHRhyme$data), featlabel), k = 6, lrect = -7, ylab = " ") -->
+<!-- # C = cahPlotCol(CAHAllWords, main = "C", xlab = paste( ncol(CAHAllWords$data), featlabel), k = 6, ylab = " ") -->
+<!-- # D = cahPlotCol(CAHAffs, main = "D", xlab = paste( ncol(CAHAffs$data), featlabel), k = 6, ylab = " ") -->
+<!-- # E = cahPlotCol(CAHPOS3gr, main = "E", xlab = paste( ncol(CAHPOS3gr$data), featlabel), k = 6, lrect = -12 , ylab = " ") -->
+<!-- # F = cahPlotCol(CAHmfw, main = "F", k = 6, lrect = -5, ylab = " ") -->
+<!-- # gridExtra::grid.arrange(A, B, C, D, E, F, ncol = 2) -->
+<!-- gridExtra::grid.arrange(plotRaw3grams, plotForms, plotAffixes, plotFW, plotLemmas, plotFL, plotPOS3grams, plotGlob, ncol = 2) -->
+<!-- ``` -->
+
+
+<!-- ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100} -->
+<!-- gridExtra::grid.arrange(somplotRaw3grams, somplotForms, somplotAffixes, somplotFW, somplotLemmas, somplotFL, somplotPOS3grams, somplotGlob, ncol = 2) -->
+<!-- ``` -->
 
 ## Robustness
 
 ```{r}
-cahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FLPOSandAffs = CAHGlob, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas, UnnormFW = CAHFW)
+cahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FWPOSandAffs = CAHGlob2, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas)
 #compareHC(cahList, k = 9)
 
 benchmark = benchmarkHC(CAHRaw3gr, cahList, k = 9)
 round(benchmark, digits = 2)
 
-# Now with SOM
-cahSOMList = list(raw3grams = somCAHRaw3gr, Affs = somCAHAffs, FunctLemm = somCAHFL, POS3gr = somCAHPOS3gr, FLPOSandAffs = somCAHGlob, Forms = somCAHForms,  Lemmas = somCAHLemmas, WordsLemmas = somCAHWordsLemmas, UnnormFW = somCAHFW)
-
-benchmark = benchmarkHC(CAHRaw3gr, cahSOMList, k = 9)
-round(benchmark, digits = 2)
+# # Now with SOM
+# cahSOMList = list(raw3grams = somCAHRaw3gr, Affs = somCAHAffs, FunctLemm = somCAHFL, POS3gr = somCAHPOS3gr, FLPOSandAffs = somCAHGlob, FWPOSandAffs = somCAHGlob2, FLFWPOSandAffs = somCAHGlob3, Forms = somCAHForms,  Lemmas = somCAHLemmas, WordsLemmas = somCAHWordsLemmas, UnnormFW = somCAHFW)
+# 
+# benchmark = benchmarkHC(CAHRaw3gr, cahSOMList, k = 9)
+# round(benchmark, digits = 2)
 ```
 
 ## Volatility index
 
-```{r}
-#TODO: add SOMS ?
-vol = volatility(cahList, k = 9)
-
-out = merge(round(vol, digits = 2), nwords, by="row.names", all.x=TRUE, all.y=FALSE)
-
-out[order(out[, "V_i"]), ]
-
-# see if there is a correlation
-reg = lm(out[, 3] ~ out[, 2])
-summary(reg)
-plot(out[, 2], out[, 3])
-abline(reg)
-
-# Et la distrib des VI
-boxplot(out[, 2])
-hist(out[, 2])
-```
-
+## Ref analyses
 
 ```{r}
 # ONLY on the three reference analyses
-refCAH = list(raw3grams = CAHRaw3gr, FLPOSandAffs = CAHGlob, WordsLemmas = CAHWordsLemmas)
+cahList = list(raw3grams = CAHRaw3gr,  FWPOSandAffs = CAHGlob2, WordsLemmas = CAHWordsLemmas)
 
-vol = volatility(refCAH, k = 9)
+vol = volatility(cahList, k = 9)
 
+volRef = merge(round(vol, digits = 2), nwords, by="row.names", all.x=TRUE, all.y=FALSE)
+
+volRef[order(volRef[, "V_i"]), ]
+
+# see if there is a correlation
+reg = lm(volRef[, 3] ~ volRef[, 2])
+summary(reg)
+plot(volRef[, 2], volRef[, 3])
+abline(reg)
+
+# Et la distrib des VI
+boxplot(volRef[, 2])
+hist(volRef[, 2])
+```
+
+## Supplementary analyses
+
+```{r}
+# ONLY on the three reference analyses
+cahList = list(Affs = CAHAffs, FunctWords = CAHFW, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, Forms = CAHForms,  Lemmas = CAHLemmas)
+
+vol = volatility(cahList, k = 9)
+
+volSuppl = merge(round(vol, digits = 2), nwords, by="row.names", all.x=TRUE, all.y=FALSE)
+
+volSuppl[order(volSuppl[, "V_i"]), ]
+
+# see if there is a correlation
+reg = lm(volSuppl[, 3] ~ volSuppl[, 2])
+summary(reg)
+plot(volSuppl[, 2], volSuppl[, 3])
+abline(reg)
+
+# Et la distrib des VI
+boxplot(volSuppl[, 2])
+hist(volSuppl[, 2])
+```
+
+## Formatted table with both
+
+```{r}
+out = merge(volRef, volSuppl, by="row.names", all.x=TRUE, all.y=TRUE)
+rownames(out) = out[, 2]
+out = out[, c(4, 3, 6)]
+colnames(out) = c("NWords", "V_iRef", "V_iSuppl")
+out[order(out[, 2]),]
+```
+
+```{r}
+# First, transform data
+volRegr = rbind( data.frame(NWords = volRef[, 3], V_i = volRef[, 2], type = "Ref"), 
+                 data.frame(NWords = volSuppl[, 3], V_i = volSuppl[, 2], type = "Suppl"))
+
+
+library(ggpmisc)
+
+ggplot(volRegr, aes(NWords, V_i, shape=type, colour=type, fill=type)) + geom_smooth(method="lm") +
+  geom_point(size=3) + theme_bw() +
+ # ggpmisc::stat_poly_eq(formula = quote(V_i) ~ quote(NWords), aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), parse = TRUE) 
+  ggpmisc::stat_fit_glance(method = 'lm', aes(label = paste0('p = ', round(..p.value.., 3), " Adj. R² = ", round(..adj.r.squared.., 3))))
+```
+
+
+
+
+### With all 
+```{r}
+vol = volatility(cahList, k = 9)
 out = merge(round(vol, digits = 2), nwords, by="row.names", all.x=TRUE, all.y=FALSE)
-
 out[order(out[, "V_i"]), ]
 
 # see if there is a correlation
@@ -446,6 +553,8 @@ abline(reg)
 boxplot(out[, 2])
 hist(out[, 2])
 ```
+
+
 
 
 
