@@ -95,7 +95,6 @@ somCluster = function(x, gridx = 10, gridy = 10){
 }
 
 
-
 ### Robustness checks
 
 # Gives the cluster purity with reference to alledged authors, and an adjusted Rand index in comparison with the analysis showed in fig. 1
@@ -213,6 +212,142 @@ volatility = function(cahList, k = 9){
     # Compute index
     V_i = sum( (X - (nclasses - X) )/ nclasses ) / length(X)
     results[i, ] = V_i
+  }
+  return(results)
+}
+
+###########################################
+### Compare results with other datasets ###
+###########################################
+
+#### First, a function to replicate all other analyses on an alternate dataSet
+
+## subfunction to perform analysis
+
+readData = function(toKeep, path){
+  # toKeep: texts to keep for analysis
+  # path: path to data
+  # return: data…
+  data = read.csv(path, header = TRUE, row.names = 1)
+  data = t(data)
+  data = data[, toKeep]
+  data = data[rowSums(data) > 0, ]
+  return(data)
+}
+
+readAnnotData = function(toKeep, path){
+  # toKeep: texts to keep for analysis
+  # path: path to data
+  # return: data…
+  data = read.csv(path, header = TRUE, row.names = 1, sep = ";")
+  data = data[, -1]
+  colnames(data) = gsub("^X", "", colnames(data))
+  colnames(data) = gsub(".decolumnized", "", colnames(data))
+  colnames(data) = gsub("Leg.", "Leg-", colnames(data))
+  data = data[, toKeep]
+  data = data[rowSums(data) > 0, ]
+  data = as.matrix(data)
+  return(data)
+}
+
+performAnalysis = function(data){
+  # data: well, … data.
+  # returns: a HC (agnes object)
+  # Selection based on Moisl 2011
+  select = selection(data, z = 1.645)
+  select = select[,4]
+  # Normalisations
+  data = relativeFreqs(data)
+  data = data[select,]
+  data = normalisations(data)
+  myCAH = cluster::agnes(t(data), metric = "manhattan", method="ward")
+  return(myCAH)
+}
+
+## and the one to replicate
+
+replicateAnalysis = function(toKeep, path_raw_char3grams, 
+                             path_expanded_words, path_pos3_gr, path_lemmas, 
+                             functionWords, functionLemmas){
+  # toKeep: list of texts to keep for analysis
+  # path_raw_char3grams: path to raw_char3grams file;
+  # path_expanded_words, path_pos3_gr, path_lemmas: you get the idea…
+  # functionWords: list of functionWords
+  # functionLemmas: well, in fact, a list of functionLemmas (really)
+  
+  data3grams = readData(toKeep, path_raw_char3grams)
+  CAHRaw3gr = performAnalysis(data3grams)
+  dataWords = readData(toKeep, path_expanded_words)
+  CAHForms  = performAnalysis(dataWords)
+  dataAffs = countAffixes(dataWords)
+  CAHAffs = performAnalysis(dataAffs)
+  
+  # Now, function words, a bit more annoying (should put it in readData function, yeah, right)
+  dataFW = relativeFreqs(dataWords)
+  dataFW = dataFW[functionWords,]
+  dataFWsave = dataFW
+  dataFW = normalisations(dataFW)
+  CAHFW = cluster::agnes(t(dataFW), metric = "manhattan", method="ward")
+  
+  # back to normal. Or not.
+  dataPOS = readAnnotData(toKeep, path_pos3_gr)
+  CAHPOS3gr = performAnalysis(dataPOS)
+  dataLemmas = readAnnotData(toKeep, path_lemmas)
+  CAHLemmas = performAnalysis(dataLemmas)
+  
+  # And now back to functionLemmas
+  dataFL = relativeFreqs(dataLemmas)
+  dataFL = dataFL[functionLemmas,]
+  dataFL = normalisations(dataFL)
+  CAHFL = cluster::agnes(t(dataFL), metric = "manhattan", method="ward")
+  
+  # And NOOOOOW: Affixes + POS 3-gr + Function words (unnorm)
+  
+  # Select relevant data
+  dataList = list(dataAffs, dataPOS)
+  results = matrix(ncol = ncol(dataAffs), nrow = 0, dimnames = list(NULL, colnames(dataAffs)))
+  
+  for (i in 1:length(dataList)){
+    select = selection(dataList[[i]], z = 1.645)
+    select = select[,4]
+    # Normalisations
+    dataList[[i]] = relativeFreqs(dataList[[i]])
+    results = rbind(results, dataList[[i]][select,])
+  }
+  results = rbind(results, dataFWsave)
+  rm(dataList)
+  dataGlob = normalisations(results)
+  CAHGlob2 = cluster::agnes(t(dataGlob), metric = "manhattan", method="ward")
+  
+  # AND NOW: lemmas and words
+  # Select relevant data
+  dataList = list(dataLemmas, dataWords)
+  results = matrix(ncol = ncol(dataLemmas), nrow = 0, dimnames = list(NULL, colnames(dataLemmas)))
+  for (i in 1:length(dataList)){
+    select = selection(dataList[[i]], z = 1.645)
+    select = select[,4]
+    # Normalisations
+    dataList[[i]] = relativeFreqs(dataList[[i]])
+    results = rbind(results, dataList[[i]][select,])
+  }
+  rm(dataList)
+  dataWordsLemmas = normalisations(results)
+  CAHWordsLemmas = cluster::agnes(t(dataWordsLemmas), metric = "manhattan", method="ward")
+  
+  cahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FWPOSandAffs = CAHGlob2, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas)
+  return(cahList)
+}
+
+### And now for something entirely different
+### Compare one to one the analyses
+
+compareReplications = function(refCahList, replicatedCahList, k = 5){
+  results = matrix(nrow = length(names(refCahList)), ncol = 1,  
+                   dimnames = list(names(refCahList), NULL))
+  for(i in 1:nrow(results)){
+    classes1 = cutree(as.hclust(refCahList[[i]]), k = k)
+    classes2 = cutree(as.hclust(replicatedCahList[[i]]), k = k)
+    results[i, 1] = NMF::purity(as.factor(classes1), as.factor(classes2))
   }
   return(results)
 }
