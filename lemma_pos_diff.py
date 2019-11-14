@@ -2,6 +2,7 @@ import csv
 import collections
 import math
 import statistics
+from pprint import pprint
 
 def geomean(xs):
     return math.exp(math.fsum(math.log(x) for x in xs) / len(xs))
@@ -9,21 +10,11 @@ def geomean(xs):
 counts = collections.defaultdict(lambda: {"ocr": [], "gt": []})
 
 
-with open("lemma.csv") as f:
+with open("pos.csv") as f:
 	reader = csv.reader(f)
 
 	titles = []
 	types = []
-	decompte = {
-		"total": {
-			"ocr": 0,
-			"gt": 0
-		},
-		"specifique": {
-			"ocr": 0,
-			"gt": 0
-		}
-	}
 	apaxes = {"ocr": 0, "gt": 0, "same": 0}
 	totals = {"ocr": 0, "gt": 0}
 
@@ -48,6 +39,18 @@ with open("lemma.csv") as f:
 		for title in titles
 	}
 	diff_moy_by_title["total"] = []
+
+	decompte = {
+		title: {"ocr": 0, "gt": 0}
+		for title in titles
+	}
+	decompte["total"] = {"ocr": 0, "gt": 0}
+
+	nb_lemma = {
+		title: {"ocr": 0, "gt": 0}
+		for title in titles
+	}
+	nb_lemma["total"] = {"ocr": 0, "gt": 0}
 
 	diff_moy_by_title_hors_apaxes_de_type = {
 		title: []
@@ -90,10 +93,13 @@ with open("lemma.csv") as f:
 					if rel != 1.0:
 						diff_moy_by_title_hors_apaxes_de_type[title].append(rel)
 					
-					if title == "total":
-						decompte["total"]["ocr"] += here["total"]["ocr"]
-						decompte["total"]["gt"] += here["total"]["gt"]
 
+					nb_lemma[title]["ocr"] += int(freqs["ocr"] > 0)
+					nb_lemma[title]["gt"] += int(freqs["gt"] > 0)
+
+					decompte[title]["ocr"] += int(maximum_freq == freqs["ocr"] and rel == 1.0)
+					decompte[title]["gt"] += int(maximum_freq == freqs["gt"] and rel == 1.0)
+					
 
 					diff_moy_by_title[title].append(rel)
 
@@ -124,7 +130,13 @@ with open("lemma.csv") as f:
 				"median": statistics.median(diff_moy_by_title_hors_apaxes_de_type[key])
 			}
 
-from pprint import pprint
+	pprint(decompte)
+	for key in decompte:
+		decompte[key] = {
+			ocr_or_gt: specs/nb_lemma[key][ocr_or_gt]
+			for ocr_or_gt, specs in decompte[key].items()
+		}
+
 print("======")
 print("Apaxes")	
 print(apaxes) # {'ocr': 2353, 'gt': 1052, 'same': 871}
@@ -134,5 +146,19 @@ pprint(diff_moy_by_title_hors_apaxes_de_type)
 print("======")
 print("Diff moy ")
 pprint(diff_moy_by_title)
-
+import json
 pprint(decompte)
+
+
+for num, (title, values) in enumerate(diff_moy_by_title_hors_apaxes_de_type.items()):
+	if num == 0:
+		keys = list(values.keys())
+		print("|"+"|".join(["Corpus"]+keys)+"|")
+	print("|"+"|".join([title]+[str(round(value*100, 2)) for value in values.values()])+"|")
+
+
+for num, (title, values) in enumerate(decompte.items()):
+	if num == 0:
+		keys = list(values.keys())
+		print("|"+"|".join(["Corpus"]+keys)+"|")
+	print("|"+"|".join([title]+[str(round(value*100, 2)) for value in values.values()])+"|")
