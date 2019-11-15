@@ -8,9 +8,12 @@ def geomean(xs):
     return math.exp(math.fsum(math.log(x) for x in xs) / len(xs))
 
 counts = collections.defaultdict(lambda: {"ocr": [], "gt": []})
+# Load function lemmas
+with open("functionLemmas.R") as f:
+	functionLemmas = eval(f.read().replace("c(", "[").replace(")", "]"))
 
-
-with open("pos.csv") as f:
+# Compute on lemmas
+with open("lemma.csv") as f:
 	reader = csv.reader(f)
 
 	titles = []
@@ -18,6 +21,7 @@ with open("pos.csv") as f:
 	hapaxs = {"ocr": 0, "gt": 0, "same": 0}
 	nb_tokens = {"ocr": 0, "gt": 0}
 	nb_tokens_ocr = collections.defaultdict(lambda: 0)
+	nb_tokens_ocr_function_lemma = collections.defaultdict(lambda: 0)
 
 	# On tourne une première fois pour avoir le décompte total
 	# C'est pas beau; mais ça fait le café
@@ -29,22 +33,34 @@ with open("pos.csv") as f:
 		else:
 			by_types = zip(titles, types, line[1:])
 
+			is_function_lemma = line[0] in functionLemmas
+
 			for title, type_name, cnt in by_types:
 				nb_tokens[type_name] += int(cnt)
 				if type_name == "ocr":
 					nb_tokens_ocr[title] += int(cnt)
-
-	# Distance relative des fréquences relatives
-	diff_moy_by_title = { title: [] for title in titles }
-	diff_moy_by_title["total"] = []
+					if is_function_lemma:
+						nb_tokens_ocr_function_lemma[title] += int(cnt)
 
 	# Somme des distances absolues divisées par la somme des fréquences OCR
 	deltas = {title: [] for title in titles }
 	deltas["total"] = []
 
+	# Deltas mais pour les function words
+	deltas_function_lemma = {title: [] for title in titles }
+	deltas_function_lemma["total"] = []
+
+	# Distance relative des fréquences relatives
+	diff_moy_by_title = { title: [] for title in titles }
+	diff_moy_by_title["total"] = []
+
 	# Distance relative des fréquences relatives hors hapax d'OCR ou de GT (Comptés ci-desous)
 	diff_moy_by_title_hors_hapaxs_de_type = { title: [] for title in titles}
 	diff_moy_by_title_hors_hapaxs_de_type["total"] = []
+
+	# Distance relative des fréquences relatives de function lemmas
+	diff_moy_by_title_function_lemmas = { title: [] for title in titles }
+	diff_moy_by_title_function_lemmas["total"] = []
 
 	# Compte des lemmes spécifiques d'un corpus (OCR ou GT) et non des fréquences
 	decompte = {title: {"ocr": 0, "gt": 0} for title in titles}
@@ -54,7 +70,6 @@ with open("pos.csv") as f:
 	nb_lemma = { title: {"ocr": 0, "gt": 0} for title in titles }
 	nb_lemma["total"] = {"ocr": 0, "gt": 0}
 
-
 	# On repasse pour les vrais décomptes
 	f.seek(0)
 	for num, line in enumerate(reader):
@@ -62,6 +77,8 @@ with open("pos.csv") as f:
 			continue
 		else:
 			by_types = zip(titles, types, line[1:])
+
+			is_function_lemma = line[0] in functionLemmas
 
 			# Création d'un dictionaire local de fréquences absolues
 			here = {title: {"ocr": 0, "gt": 0} for title in titles}
@@ -81,12 +98,19 @@ with open("pos.csv") as f:
 				maximum_freq = max(list(freqs_relatives.values()))
 
 				# Calcul de la distance absolue entre OCR et GT
-				deltas[title].append(abs(here[title]["ocr"]-here[title]["gt"]))
+				dist_abs = abs(here[title]["ocr"]-here[title]["gt"])
+				deltas[title].append(dist_abs)
+
+				# Si c'est un lemma fonction, il est compté dans le delta 
+				if is_function_lemma:
+					deltas_function_lemma[title].append(dist_abs)
+					# Certains titres pourraient ne pas avoir la valeur
+					if maximum_freq > 0:
+						diff_moy_by_title_function_lemmas[title].append(abs(freqs_relatives["gt"] - freqs_relatives["ocr"]) / maximum_freq)
 
 				if maximum_freq > 0.:
 					# On calcule la distance relative de fréquences relatives
 					dist_rel_freq_rel = abs(freqs_relatives["gt"] - freqs_relatives["ocr"]) / maximum_freq
-
 					
 					# Si 1.0, hapax de type (présent que dans OCR ou que dans GT)
 					if dist_rel_freq_rel == 1.0:
@@ -130,14 +154,29 @@ for key in diff_moy_by_title_hors_hapaxs_de_type:
 			"geo_mean" : geomean(diff_moy_by_title_hors_hapaxs_de_type[key]),
 			"median": statistics.median(diff_moy_by_title_hors_hapaxs_de_type[key])
 		}
+for key in diff_moy_by_title_function_lemmas:
+	if diff_moy_by_title_function_lemmas[key]:
+		diff_moy_by_title_function_lemmas[key] = {
+			"arith_mean": sum(diff_moy_by_title_function_lemmas[key]) / len(diff_moy_by_title_function_lemmas[key]),
+			"geo_mean" : geomean(diff_moy_by_title_function_lemmas[key]),
+			"median": statistics.median(diff_moy_by_title_function_lemmas[key])
+		}
 
-
+##### DELTAS #####
+# Complet
 # Avant le calcul des deltas, calcul du nombres de tokens total
 nb_tokens_ocr["total"] = sum(list(nb_tokens_ocr.values()))
 
 # Calcul des deltas
 for title in deltas:
 	deltas[title] = {"delta": sum(deltas[title])/nb_tokens_ocr[title]}
+# Function Words
+# Avant le calcul des deltas, calcul du nombres de tokens total
+nb_tokens_ocr_function_lemma["total"] = sum(list(nb_tokens_ocr_function_lemma.values()))
+
+# Calcul des deltas
+for title in deltas_function_lemma:
+	deltas_function_lemma[title] = {"delta": sum(deltas_function_lemma[title])/nb_tokens_ocr_function_lemma[title]}
 
 # Calcul des % de termes spécifiques à chaque corpora (nb d'individus uniques)
 for key in decompte:
@@ -166,10 +205,15 @@ def print_table_moy(dico, title, reformat=lambda x: str(round(x*100, 2))):
 print_table_moy(deltas, "Deltas", lambda x: str(x))
 print_table_moy(diff_moy_by_title, "Distances relatives des fréquences relatives")
 print_table_moy(diff_moy_by_title_hors_hapaxs_de_type, "Distances relatives des fréquences relatives, hors termes spécifiques à un corpus")
+print_table_moy(diff_moy_by_title_function_lemmas, "Distances relatives des fréquences relatives des function lemmas")
 print_table_moy(deltas, "Deltas")
+print_table_moy(deltas_function_lemma, "Deltas function lemmas")
+
 
 for num, (title, values) in enumerate(decompte.items()):
 	if num == 0:
 		keys = list(values.keys())
 		print("|"+"|".join(["Corpus"]+keys)+"|")
 	print("|"+"|".join([title]+[str(round(value*100, 2)) for value in values.values()])+"|")
+
+print(nb_tokens_ocr_function_lemma)
