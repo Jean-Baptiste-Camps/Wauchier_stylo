@@ -55,6 +55,15 @@ toKeep = colnames(data)[nwords > 1000]
 
 toKeep = toKeep[grep("Bestiaire", toKeep, invert = TRUE)]
 
+# nwords = colSums(data[, toKeep])
+# summary(nwords)
+# boxplot(nwords)
+# boxplot(nwords)$out
+# head(sort(nwords), n = 15)
+
+# Testing this # Remove it after
+# toKeep = toKeep = toKeep[!toKeep == "60_Ano_Leg-B_NA_NA_NA_Antechriste"]
+
 df = as.data.frame(nwords)
 
 ggplot(df, aes(x="", y=nwords)) + geom_violin() + geom_boxplot(width=0.3) +  theme(axis.text.y = element_text(size = rel(1.4)), axis.title = element_text(size = rel(1.4))) + xlab("Est. length in words of corpus texts") + scale_y_continuous(breaks=c(0, 2500, 5000, 7500, 10000, 12500, 15000, 17500))
@@ -70,6 +79,7 @@ ggplot(df, aes(x="", y=nwords)) + geom_violin() + geom_boxplot(width=0.3) +  the
 ```{r}
 # Get data with Stylo
 #data = stylo::load.corpus.and.parse(corpus.dir = "dh-meier-data/output/transkribus/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
+#data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/transkribus-etudiants/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
@@ -100,20 +110,10 @@ CAHRaw3gr = myCAH
 # barplot(sort(myCAH$height))
 plotRaw3grams = cahPlotCol(myCAH, k = 5, main = "Characters 3-grams from raw data (Transkr)")
 
-somCAH = somCluster(d)
-somCAHRaw3gr = somCAH
-somplotRaw3grams = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
+# somCAH = somCluster(d)
+# somCAHRaw3gr = somCAH
+# somplotRaw3grams = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
 ```
-
-<!-- 
-# Transkribus tokenized data
-
-## Affixes from tokenized data
-
-## Unstandardised words from tokenized data
-
-## Unstandardised function words from tokenized data
--->
 
 # Transkribus expanded data
 
@@ -148,9 +148,9 @@ CAHForms = myCAH
 # barplot(sort(myCAH$height))
 plotForms = cahPlotCol(myCAH, k = 5, main = "Expanded word forms (Transkr/Boudams/Pie)")
 
-somCAH = somCluster(d)
-somCAHForms = somCAH
-somplotForms = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Expanded word forms (Transkr/Boudams/Pie)")
+# somCAH = somCluster(d)
+# somCAHForms = somCAH
+# somplotForms = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Expanded word forms (Transkr/Boudams/Pie)")
 ```
 
 ## Affixes from expanded data
@@ -178,9 +178,9 @@ CAHAffs = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotAffixes = cahPlotCol(myCAH, k = 5, main = "Expanded affixes (Transkr/Boudams/Pie)")
-somCAH = somCluster(d)
-somCAHAffs = somCAH
-somplotAffixes = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Expanded affixes (Transkr/Boudams/Pie)")
+# somCAH = somCluster(d)
+# somCAHAffs = somCAH
+# somplotAffixes = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Expanded affixes (Transkr/Boudams/Pie)")
 ```
 
 ## Unstandardised function words from expanded data
@@ -207,9 +207,9 @@ CAHFW = myCAH
 # barplot(sort(myCAH$height))
 plotFW = cahPlotCol(myCAH, k = 5, main = "Function words with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
-somCAH = somCluster(d)
-somCAHFW = somCAH
-somplotFW = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Function words")
+# somCAH = somCluster(d)
+# somCAHFW = somCAH
+# somplotFW = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Function words")
 ```
 
 # Transkribus with linguistic annotation
@@ -234,6 +234,7 @@ data = as.matrix(data)
 d = data
 # Selection based on Moisl 2011
 select = selection(d, z = 1.645)
+write.csv(select, file="select_pos3gr_moisl.csv")
 select = select[,4]
 # Normalisations
 d = relativeFreqs(d)
@@ -247,9 +248,9 @@ CAHPOS3gr = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotPOS3grams = cahPlotCol(myCAH, k = 5, main = "POS 3-grams (Transkr/Boudams/Pie/Pie)")
-somCAH = somCluster(d)
-somCAHPOS3gr = somCAH
-somplotPOS3grams = cahPlotCol(somCAH, k = 5, main = "SOM BASED - POS 3-grams")
+# somCAH = somCluster(d)
+# somCAHPOS3gr = somCAH
+# somplotPOS3grams = cahPlotCol(somCAH, k = 5, main = "SOM BASED - POS 3-grams")
 ```
 
 ## Lemmas
@@ -273,6 +274,7 @@ data = as.matrix(data)
 d = data
 # Selection based on Moisl 2011
 select = selection(d, z = 1.645)
+write.csv(select, file="select_lemmas_moisl.csv")
 select = select[,4]
 # Normalisations
 d = relativeFreqs(d)
@@ -285,9 +287,9 @@ CAHLemmas = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotLemmas = cahPlotCol(myCAH, k = 5, main = "Lemmas (Transkr/Boudams/Pie/Pie)")
-somCAH = somCluster(d)
-somCAHLemmas = somCAH
-somplotLemmas = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Lemmas")
+# somCAH = somCluster(d)
+# somCAHLemmas = somCAH
+# somplotLemmas = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Lemmas")
 ```
 
 ## Function words from lemmas
@@ -311,9 +313,9 @@ CAHFL = myCAH
 # barplot(sort(myCAH$height))
 plotFL = cahPlotCol(myCAH, k = 5, main = "Function Lemmas with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
-somCAH = somCluster(d)
-somCAHFL = somCAH
-somplotFL = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Function words (lemmas)")
+# somCAH = somCluster(d)
+# somCAHFL = somCAH
+# somplotFL = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Function words (lemmas)")
 ```
 
 # Affixes + POS 3-gr + Function words (lemmas)
@@ -330,9 +332,9 @@ CAHGlob = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotGlob = cahPlotCol(myCAH, k = 5, main = "Affixes + POS 3- grams + Function words (lemmas)")
-somCAH = somCluster(d)
-somCAHGlob = somCAH
-somplotGlob = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
+# somCAH = somCluster(d)
+# somCAHGlob = somCAH
+# somplotGlob = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
 ```
 
 # Affixes + POS 3-gr + Function words (unnorm)
@@ -350,9 +352,9 @@ CAHGlob2 = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotGlob2 = cahPlotCol(myCAH, k = 5, main = "Affixes + POS 3- grams + Function words (unnorm.)")
-somCAH = somCluster(d)
-somCAHGlob2 = somCAH
-somplotGlob2 = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
+# somCAH = somCluster(d)
+# somCAHGlob2 = somCAH
+# somplotGlob2 = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
 ```
 
 # Affixes + POS 3-gr + Function words (both)
@@ -369,9 +371,9 @@ CAHGlob3 = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotGlob3 = cahPlotCol(myCAH, k = 5, main = "Affixes + POS 3- grams + Function words (both)")
-somCAH = somCluster(d)
-somCAHGlob3 = somCAH
-somplotGlob3 = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
+# somCAH = somCluster(d)
+# somCAHGlob3 = somCAH
+# somplotGlob3 = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
 ```
 
 # Exp. word-forms+lemmas
@@ -389,9 +391,9 @@ CAHWordsLemmas = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotWordsLemmas = cahPlotCol(myCAH, k = 5, main = "Word forms + lemmas")
-somCAH = somCluster(d)
-somCAHWordsLemmas = somCAH
-somplotWordsLemmas = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Word forms + lemmas")
+# somCAH = somCluster(d)
+# somCAHWordsLemmas = somCAH
+# somplotWordsLemmas = cahPlotCol(somCAH, k = 5, main = "SOM BASED - Word forms + lemmas")
 ```
 
 
@@ -552,22 +554,40 @@ hist(out[, 2])
 
 # Controlling for pipeline bias
 
+
 ```{r}
 RefcahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FWPOSandAffs = CAHGlob2, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas)
+##CAREFUL ###
+####TEMPORARY FIX - DO REMOVE ME LATER#####
+toKeepBis = toKeep[!toKeep == "60_Ano_Leg-B_NA_NA_NA_Antechriste"]
+# Redo base results without Antechrist
+RefcahListBis = replicateAnalysis(toKeepBis, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
 # 1. get Students analysis list
-StudentsResults = replicateAnalysis(toKeep, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
+StudentsResults = replicateAnalysis(toKeepBis, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
 
 # 2. perform comparison
-comp1 = compareReplications(RefcahList, StudentsResults, k = 5)
+comp1 = compareReplications(RefcahListBis, StudentsResults, k = 5)
 
 # 3. get Kraken analysis list
-KrakenResults = replicateAnalysis(toKeep, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
+KrakenResults = replicateAnalysis(toKeep, "data/kraken_nospace_raw_char3grams.csv", "data/kraken_nospace_expanded_words.csv", "data/kraken_nospace_pos3-gr.csv", "data/kraken_nospace_lemmas.csv", functionWords, functionLemmas)
 
 # 4. perform comparison
 comp2 = compareReplications(RefcahList, KrakenResults, k = 5)
 
 # 5. merge and output
-round(cbind(comp1, comp2), 2)
+out = cbind(comp1, comp2)
+colnames(out) = c("Students", "Kraken")
+
+refs = c("raw3grams", "FWPOSandAffs", "WordsLemmas")
+suppl = rownames(out)[!rownames(out) %in% refs]
+# Geom mean all
+out = rbind(out, exp(colMeans(log(out))))
+# Geom mean refs
+out = rbind(out, exp(colMeans(log(out[refs, ]))))
+# Geom mean suppl
+out = rbind(out, exp(colMeans(log(out[suppl, ]))))
+rownames(out)[(length(rownames(out))-2):length(rownames(out))] =  c("geom mean all", "geom mean refs", "geom mean suppl")
+round(out, 2)
 ```
 
 
