@@ -7,8 +7,17 @@ from pprint import pprint
 def geomean(xs):
     return math.exp(math.fsum(math.log(x) for x in xs) / len(xs))
 
-def compute(main, functionLemmas=None):
+def compute(main, moisl, functionLemmas=None):
 	counts = collections.defaultdict(lambda: {"ocr": [], "gt": []})
+
+	# Load moisl lists
+	with open(moisl) as f:
+		reader = csv.DictReader(f)
+		moisl = [
+			row[""].replace(" ", "->") for row in reader
+			if row["passes"] == "TRUE"
+		]
+
 	# Load function lemmas
 	if functionLemmas:
 		with open(functionLemmas) as f:
@@ -26,6 +35,7 @@ def compute(main, functionLemmas=None):
 		nb_tokens = {"ocr": 0, "gt": 0}
 		nb_tokens_ocr = collections.defaultdict(lambda: 0)
 		nb_tokens_ocr_function_lemma = collections.defaultdict(lambda: 0)
+		nb_tokens_ocr_moisl = collections.defaultdict(lambda: 0)
 
 		# On tourne une première fois pour avoir le décompte total
 		# C'est pas beau; mais ça fait le café
@@ -38,6 +48,7 @@ def compute(main, functionLemmas=None):
 				by_types = zip(titles, types, line[1:])
 
 				is_function_lemma = line[0] in functionLemmas
+				is_moisl = line[0] in moisl
 
 				for title, type_name, cnt in by_types:
 					nb_tokens[type_name] += int(cnt)
@@ -45,6 +56,8 @@ def compute(main, functionLemmas=None):
 						nb_tokens_ocr[title] += int(cnt)
 						if is_function_lemma:
 							nb_tokens_ocr_function_lemma[title] += int(cnt)
+						if is_moisl:
+							nb_tokens_ocr_moisl[title] += int(cnt)
 
 		# Somme des distances absolues divisées par la somme des fréquences OCR
 		deltas = {title: [] for title in titles }
@@ -53,6 +66,10 @@ def compute(main, functionLemmas=None):
 		# Deltas mais pour les function words
 		deltas_function_lemma = {title: [] for title in titles }
 		deltas_function_lemma["total"] = []
+
+		# Deltas mais pour les moisls
+		deltas_moisl = {title: [] for title in titles }
+		deltas_moisl["total"] = []
 
 		# Distance relative des fréquences relatives
 		diff_moy_by_title = { title: [] for title in titles }
@@ -83,6 +100,7 @@ def compute(main, functionLemmas=None):
 				by_types = zip(titles, types, line[1:])
 
 				is_function_lemma = line[0] in functionLemmas
+				is_moisl = line[0] in moisl
 
 				# Création d'un dictionaire local de fréquences absolues
 				here = {title: {"ocr": 0, "gt": 0} for title in titles}
@@ -96,7 +114,7 @@ def compute(main, functionLemmas=None):
 				# On calcule pour chacun des titres et le total 
 				for title in here:
 
-					# Key = OCR ou GT, évite de hardcoder le décompte
+					# Evite de hardcoder le décompte mais ca rend pas les choses faciles à lire....
 					# On calcule ici la fréquence relative à partir de leur fréquence absolue
 					freqs_relatives = { ocr_or_gt: freq_absolue/nb_tokens[ocr_or_gt]  for ocr_or_gt, freq_absolue in here[title].items()}
 					maximum_freq = max(list(freqs_relatives.values()))
@@ -104,6 +122,10 @@ def compute(main, functionLemmas=None):
 					# Calcul de la distance absolue entre OCR et GT
 					dist_abs = abs(here[title]["ocr"]-here[title]["gt"])
 					deltas[title].append(dist_abs)
+
+					# Si c'est un moisl, on l'ajoute
+					if is_moisl:
+						deltas_moisl[title].append(dist_abs)
 
 					# Si c'est un lemma fonction, il est compté dans le delta 
 					if is_function_lemma:
@@ -184,6 +206,13 @@ def compute(main, functionLemmas=None):
 		# Calcul des deltas
 		for title in deltas_function_lemma:
 			deltas_function_lemma[title] = {"delta": sum(deltas_function_lemma[title])/nb_tokens_ocr_function_lemma[title]}
+	# Moisl
+	# Avant le calcul des deltas, calcul du nombres de tokens total
+	nb_tokens_ocr_moisl["total"] = sum(list(nb_tokens_ocr_moisl.values()))
+
+	# Calcul des deltas
+	for title in deltas_moisl:
+		deltas_moisl[title] = {"delta": sum(deltas_moisl[title])/nb_tokens_ocr_moisl[title]}
 
 	# Calcul des % de termes spécifiques à chaque corpora (nb d'individus uniques)
 	for key in decompte:
@@ -216,6 +245,7 @@ def compute(main, functionLemmas=None):
 	print_table_moy(deltas, "Deltas")
 	if functionLemmas:
 		print_table_moy(deltas_function_lemma, "Deltas function lemmas")
+	print_table_moy(deltas_moisl, "Deltas Moisls")	
 
 
 	for num, (title, values) in enumerate(decompte.items()):
@@ -226,5 +256,5 @@ def compute(main, functionLemmas=None):
 
 
 
-compute("data/lemma_transkribus_vs_golden.csv", "functionLemmas.R")
-compute("data/pos_transkribus_vs_golden.csv")
+compute("data/lemma_transkribus_vs_golden.csv", "data/select_lemmas_moisl.csv", "functionLemmas.R")
+compute("data/pos_transkribus_vs_golden.csv", "data/select_pos3gr_moisl.csv")
