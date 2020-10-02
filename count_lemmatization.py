@@ -3,22 +3,22 @@ import os.path
 import csv
 from collections import defaultdict
 
-OCR_PATH = "/home/thibault/dev/dh-meier/output/transkribus/lemmatized/boudams"
-LEMMA_PATH = "/home/thibault/dev/LiSeinConfessorPandora/data/lemmatises"
+OCR_PATH = "/home/jbcamps/Data/F/Cours_interventions_colloques/2019-07_DH-Utrecht/stylo_afr/dh-meier-data/output/transkribus/lemmatized/boudams"
+LEMMA_PATH = "/home/jbcamps/Data/F/LAKME/02_corpora_old_french/corpora-old-french/projects/Wauchier"
 
 files = {
-	"29_Wau_Leg-C_Co_Ev_Vie_Martin.decolumnized.txt": "jns915.jns1856.ciham-fro1__Pandora.tsv",
-	"30_Wau_Leg-C_Co_Ev_Tra_Martin2.decolumnized.txt": "jns915.jns1856.ciham-fro1__Pandora.tsv",
-	"31_Wau_Leg-C_Co_Ev_Dia_Martin3.decolumnized.txt": "jns915.jns2117.ciham-fro1__Pandora.tsv",
-	"32_Wau_Leg-C_Co_Ev_Vie_Brice.decolumnized.txt": "jns915.jns1743.ciham-fro1__Pandora.tsv",
-	"33_Wau_Leg-C_Co_Er_Vie_Gilles.decolumnized.txt": "jns915.jns2000.ciham-fro1__Pandora.tsv",
-	"34_Wau_Leg-C_Co_Ev_Vie_Martial.decolumnized.txt": "jns915.jns1761.ciham-fro1__Pandora.tsv",
-	"35_Wau_Leg-C_Co_Ev_Vie_Nicolas.decolumnized.txt": "jns915.jns2114.ciham-fro1__Pandora.tsv",
-	"36_Wau_Leg-C_Co_Ev_Mir_Nicolas2.decolumnized.txt": "jns915.jns2114.ciham-fro1__Pandora.tsv",
-	"37_Wau_Leg-C_Co_Ev_Tra_Nicolas3.decolumnized.txt": "jns915.jns2114.ciham-fro1__Pandora.tsv",
-	"38_Wau_Leg-C_Co_Ev_Vie_Jerome.decolumnized.txt": "jns915.jns1742.ciham-fro1__Pandora.tsv",
-	"39_Wau_Leg-C_Co_Ev_Vie_Benoit.decolumnized.txt": "jns915.jns1744.ciham-fro1__Pandora.tsv",
-	"40_Wau_Leg-C_Co_Er_Vie_Alexis.decolumnized.txt": "jns915.jns1994.ciham-fro1__Pandora.tsv",
+	"29_Wau_Leg-C_Co_Ev_Vie_Martin.decolumnized.txt": "jns915.jns1856.ciham-lemTEI.tsv",
+	"30_Wau_Leg-C_Co_Ev_Tra_Martin2.decolumnized.txt": "jns915.jns1856.ciham-lemTEI.tsv",
+	"31_Wau_Leg-C_Co_Ev_Dia_Martin3.decolumnized.txt": "jns915.jns2117.ciham-lemTEI.tsv",
+	"32_Wau_Leg-C_Co_Ev_Vie_Brice.decolumnized.txt": "jns915.jns1743.ciham-lemTEI.tsv",
+	"33_Wau_Leg-C_Co_Er_Vie_Gilles.decolumnized.txt": "jns915.jns2000.ciham-lemTEI.tsv",
+	"34_Wau_Leg-C_Co_Ev_Vie_Martial.decolumnized.txt": "jns915.jns1761.ciham-lemTEI.tsv",
+	"35_Wau_Leg-C_Co_Ev_Vie_Nicolas.decolumnized.txt": "jns915.jns2114.ciham-lemTEI.tsv",
+	"36_Wau_Leg-C_Co_Ev_Mir_Nicolas2.decolumnized.txt": "jns915.jns2114.ciham-lemTEI.tsv",
+	"37_Wau_Leg-C_Co_Ev_Tra_Nicolas3.decolumnized.txt": "jns915.jns2114.ciham-lemTEI.tsv",
+	"38_Wau_Leg-C_Co_Ev_Vie_Jerome.decolumnized.txt": "jns915.jns1742.ciham-lemTEI.tsv",
+	"39_Wau_Leg-C_Co_Ev_Vie_Benoit.decolumnized.txt": "jns915.jns1744.ciham-lemTEI.tsv",
+	"40_Wau_Leg-C_Co_Er_Vie_Alexis.decolumnized.txt": "jns915.jns1994.ciham-lemTEI.tsv",
 }
 
 titles = {
@@ -38,7 +38,7 @@ titles = {
 
 
 def maker_reader(f):
-	reader = csv.DictReader(f, delimiter="\t")
+	reader = csv.DictReader(f, delimiter="\t", quotechar="￥")
 	return reader
 
 POS = {
@@ -85,7 +85,7 @@ for file in files:
 		# Treat POS
 		last_three = []
 		for line in reader:
-			last_three.append(line["pos"])
+			last_three.append(line["POS"])
 			if len(last_three) == 3:
 				POS[canonical_name]["->".join(last_three)]["ocr"] += 1
 				last_three = last_three[1:]
@@ -127,7 +127,7 @@ lemma_keys = sorted(list(set(lemma_keys)))
 # lemme3->0->5->7->9
 #
 
-with open("lemma.csv", mode="w") as f:
+with open("lemma_transkribus_vs_golden.csv", mode="w") as f:
 	writer = csv.writer(f)
 	writer.writerow(["Title", 
 		"Vie_Martin", "Vie_Martin",
@@ -149,7 +149,7 @@ with open("lemma.csv", mode="w") as f:
 		writer.writerow(line)
 
 
-with open("pos.csv", mode="w") as f:
+with open("pos_transkribus_vs_golden.csv", mode="w") as f:
 	writer = csv.writer(f)
 	writer.writerow(["Title", 
 		"Vie_Martin", "Vie_Martin",
