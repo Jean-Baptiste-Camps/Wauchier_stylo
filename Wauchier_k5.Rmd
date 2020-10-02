@@ -33,7 +33,7 @@ source("functions.R")
 
 ```{r}
 # Get data with Stylo
-# data = stylo::load.corpus.and.parse(corpus.dir = "dh-meier-data/output/transkribus/tokenized/boudams/", features = "w", ngram.size = 1, preserve.case = FALSE)
+# data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/transkribus/tokenized/boudams/", features = "w", ngram.size = 1, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
@@ -78,7 +78,6 @@ ggplot(df, aes(x="", y=nwords)) + geom_violin() + geom_boxplot(width=0.3) +  the
 
 ```{r}
 # Get data with Stylo
-#data = stylo::load.corpus.and.parse(corpus.dir = "dh-meier-data/output/transkribus/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 #data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/transkribus-etudiants/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
@@ -234,7 +233,7 @@ data = as.matrix(data)
 d = data
 # Selection based on Moisl 2011
 select = selection(d, z = 1.645)
-write.csv(select, file="select_pos3gr_moisl.csv")
+write.csv(select, file="data/select_pos3gr_moisl.csv")
 select = select[,4]
 # Normalisations
 d = relativeFreqs(d)
@@ -274,7 +273,7 @@ data = as.matrix(data)
 d = data
 # Selection based on Moisl 2011
 select = selection(d, z = 1.645)
-write.csv(select, file="select_lemmas_moisl.csv")
+write.csv(select, file="data/select_lemmas_moisl.csv")
 select = select[,4]
 # Normalisations
 d = relativeFreqs(d)
@@ -559,14 +558,15 @@ hist(out[, 2])
 RefcahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FWPOSandAffs = CAHGlob2, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas)
 ##CAREFUL ###
 ####TEMPORARY FIX - DO REMOVE ME LATER#####
-toKeepBis = toKeep[!toKeep == "60_Ano_Leg-B_NA_NA_NA_Antechriste"]
+#toKeepBis = toKeep[!toKeep == "60_Ano_Leg-B_NA_NA_NA_Antechriste"]
 # Redo base results without Antechrist
-RefcahListBis = replicateAnalysis(toKeepBis, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
+#RefcahListBis = replicateAnalysis(toKeepBis, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
 # 1. get Students analysis list
-StudentsResults = replicateAnalysis(toKeepBis, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
+#StudentsResults = replicateAnalysis(toKeepBis, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
+StudentsResults = replicateAnalysis(toKeep, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
 
 # 2. perform comparison
-comp1 = compareReplications(RefcahListBis, StudentsResults, k = 5)
+comp1 = compareReplications(RefcahList, StudentsResults, k = 5)
 
 # 3. get Kraken analysis list
 KrakenResults = replicateAnalysis(toKeep, "data/kraken_nospace_raw_char3grams.csv", "data/kraken_nospace_expanded_words.csv", "data/kraken_nospace_pos3-gr.csv", "data/kraken_nospace_lemmas.csv", functionWords, functionLemmas)

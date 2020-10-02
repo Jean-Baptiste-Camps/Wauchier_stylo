@@ -37,7 +37,7 @@ source("functions.R")
 
 ```{r}
 # Get data with Stylo
-# data = stylo::load.corpus.and.parse(corpus.dir = "~/dev/dh-meier/output/kraken-nospace/tokenized/boudams", features = "w", ngram.size = 1, preserve.case = FALSE)
+# data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/kraken-nospace/tokenized/boudams", features = "w", ngram.size = 1, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
@@ -73,7 +73,7 @@ ggplot(df, aes(x="", y=nwords)) + geom_violin() + geom_boxplot(width=0.3) +  the
 
 ```{r}
 # Get data with Stylo
-#data = stylo::load.corpus.and.parse(corpus.dir = "~/dev/dh-meier/output/kraken-nospace/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
+#data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/kraken-nospace/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
@@ -307,7 +307,7 @@ myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
 # Save
 CAHFL = myCAH
 # barplot(sort(myCAH$height))
-data = stylo::load.corpus.and.parse(corpus.dir = "~/dev/dh-meier/output/kraken-nospace/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
+data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/kraken-nospace/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 plotFL = cahPlotCol(myCAH, k = 8, main = "Function Lemmas with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
 somCAH = somCluster(d)
