@@ -118,6 +118,63 @@ somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-gr
 ## Unstandardised function words from tokenized data
 -->
 
+
+### Class descriptions, Wauchier and StLambert
+
+#### Classes members
+```{r}
+classes = cutree(myCAH, k = 5)
+classes
+```
+```{r, echo=FALSE}
+classlabels = c("A1", "A2", "WAU", "AndrCat", "C")
+```
+
+#### Classes description
+
+##### Most correlated features to the classification in general
+
+```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
+maDesc = classesDesc(myCAH, d, k=5)
+head(maDesc$quanti.var, n = 20)
+
+A = myDescPlot(relativeFreqs(data)["m.m.e", , drop = FALSE], classes, type = "violinplot", main = "m.m.e", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+B = myDescPlot(relativeFreqs(data)["X..a..", , drop = FALSE], classes, type = "violinplot", main = "X..a..", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+C = myDescPlot(relativeFreqs(data)["o.m.m", , drop = FALSE], classes, type = "violinplot", main = "o.m.m", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+D = myDescPlot(relativeFreqs(data)["d.e..", , drop = FALSE], classes, type = "violinplot", main = "d.e..", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+E = myDescPlot(relativeFreqs(data)["e.i.g", , drop = FALSE], classes, type = "violinplot", main = "e.i.g", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+F = myDescPlot(relativeFreqs(data)["q.i.l", , drop = FALSE], classes, type = "violinplot", main = "q.i.l", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+
+
+gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
+```
+
+##### Features and clusters (v-test, distribution,…): Wauchier 
+
+```{r}
+nfeats = 10
+values = c(head(sort(maDesc$quanti$`3`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`3`[,1]), n = nfeats))
+classBarplot(values, title="V-test for Wauchier class", ylab = "v-test")
+```
+
+Example of two main feats of Wauchier class
+```{r}
+class = as.factor(classes)
+levels(class) = classlabels
+levels(class) = c(levels(class), "LAMB")
+class["26_Ano_Leg-B_Ma_Ev_Vie_Lambert"] = "LAMB"
+rf = cbind(as.data.frame(t(relativeFreqs(data))), class)
+qplot(q.i.l, o.m.., colour=class, data = rf)
+```
+
+##### Specificities
+
+```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
+specifPlot(data, myCAH, k = 5)
+```
+
+
+
 # Transkribus expanded data
 
 ## Load data
