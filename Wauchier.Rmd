@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <!-- TODO: 
 - remove all punctuation;
-- concaténer textes trop courts pour gagner un peu de fiabilité?
 - groupe 41-45: est-ce que ça mériterait d'être un autre légendier ? Car pas forcément dans C.
 -->
 
@@ -100,37 +99,47 @@ CAHRaw3gr = myCAH
 # barplot(sort(myCAH$height))
 plotRaw3grams = cahPlotCol(myCAH, k = 9, main = "Characters 3-grams from raw data (Transkr)")
 
-somCAH = somCluster(d)
-somCAHRaw3gr = somCAH
-somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
+# somCAH = somCluster(d)
+# somCAHRaw3gr = somCAH
+# somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
 ```
+
+### Class descriptions, Wauchier and StLambert
+
+#### Classes members
+```{r}
+classes = cutree(myCAH, k = 9)
+classes
+```
+```{r}
+classlabels = c("1 (A1)", "2 (A2)", "3 (B)", "4 (B2)", "5 (WAU)", "6 (C?)", "9 (C??)", "8 (C2)", "7 (C3)")
+```
+
 
 #### Classes description
 
 ##### Most correlated features to the classification in general
 
 ```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
-maDesc = classesDesc(myCAH, d, k=5)
+maDesc = classesDesc(myCAH, d, k = 9)
 head(maDesc$quanti.var, n = 20)
 
-myDescPlot(relativeFreqs(data)["e.i.n", , drop = FALSE], classes, type = "violinplot", main = "e.i.n", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-
-A = myDescPlot(relativeFreqs(data)["m.m.e", , drop = FALSE], classes, type = "violinplot", main = "m.m.e", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-B = myDescPlot(relativeFreqs(data)["X..a..", , drop = FALSE], classes, type = "violinplot", main = "X..a..", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-C = myDescPlot(relativeFreqs(data)["o.m.m", , drop = FALSE], classes, type = "violinplot", main = "o.m.m", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-D = myDescPlot(relativeFreqs(data)["d.e..", , drop = FALSE], classes, type = "violinplot", main = "d.e..", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-E = myDescPlot(relativeFreqs(data)["e.i.g", , drop = FALSE], classes, type = "violinplot", main = "e.i.g", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-F = myDescPlot(relativeFreqs(data)["q.i.l", , drop = FALSE], classes, type = "violinplot", main = "q.i.l", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-
-
+A = myDescPlot(relativeFreqs(data)["m.m.e", , drop = FALSE], classes, type = "violinplot", main = "mme", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+B = myDescPlot(relativeFreqs(data)["o.m.m", , drop = FALSE], classes, type = "violinplot", main = "omm", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+C = myDescPlot(relativeFreqs(data)["e.i.g", , drop = FALSE], classes, type = "violinplot", main = "eig", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+D = myDescPlot(relativeFreqs(data)["q.u.e", , drop = FALSE], classes, type = "violinplot", main = "que", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+E = myDescPlot(relativeFreqs(data)["l.s..", , drop = FALSE], classes, type = "violinplot", main = "ls_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+F = myDescPlot(relativeFreqs(data)["i.h.e", , drop = FALSE], classes, type = "violinplot", main = "ihe", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
+# Save one for later
+WauFeats1 = myDescPlot(relativeFreqs(data)["q.i.l", , drop = FALSE], classes, type = "violinplot", main = "qil", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 ```
 
 ##### Features and clusters (v-test, distribution,…): Wauchier 
 
 ```{r}
 nfeats = 10
-values = c(head(sort(maDesc$quanti$`3`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`3`[,1]), n = nfeats))
+values = c(head(sort(maDesc$quanti$`5`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`5`[,1]), n = nfeats))
 classBarplot(values, title="V-test for Wauchier class", ylab = "v-test")
 ```
 
@@ -142,15 +151,13 @@ levels(class) = c(levels(class), "LAMB")
 class["26_Ano_Leg-B_Ma_Ev_Vie_Lambert"] = "LAMB"
 rf = cbind(as.data.frame(t(relativeFreqs(data))), class)
 qplot(q.i.l, o.m.., colour=class, data = rf)
-
-
 qplot(e.i.n, q.i.l, colour=class, data = rf)
 ```
 
 ##### Specificities
 
 ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
-specifPlot(data, myCAH, k = 5)
+specifPlot(data, myCAH, k = 9, classlabels = classlabels)
 ```
 
 
@@ -188,9 +195,9 @@ CAHForms = myCAH
 # barplot(sort(myCAH$height))
 plotForms = cahPlotCol(myCAH, k = 9, main = "Expanded word forms (Transkr/Boudams/Pie)")
 
-somCAH = somCluster(d)
-somCAHForms = somCAH
-somplotForms = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded word forms (Transkr/Boudams/Pie)")
+#somCAH = somCluster(d)
+#somCAHForms = somCAH
+#somplotForms = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded word forms (Transkr/Boudams/Pie)")
 ```
 
 ## Affixes from expanded data
@@ -218,9 +225,9 @@ CAHAffs = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotAffixes = cahPlotCol(myCAH, k = 9, main = "Expanded affixes (Transkr/Boudams/Pie)")
-somCAH = somCluster(d)
-somCAHAffs = somCAH
-somplotAffixes = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded affixes (Transkr/Boudams/Pie)")
+#somCAH = somCluster(d)
+#somCAHAffs = somCAH
+#somplotAffixes = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Expanded affixes (Transkr/Boudams/Pie)")
 ```
 
 ## Unstandardised function words from expanded data
@@ -248,9 +255,9 @@ CAHFW = myCAH
 # barplot(sort(myCAH$height))
 plotFW = cahPlotCol(myCAH, k = 8, main = "Function words with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
-somCAH = somCluster(d)
-somCAHFW = somCAH
-somplotFW = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words")
+#somCAH = somCluster(d)
+#somCAHFW = somCAH
+#somplotFW = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words")
 ```
 
 # Transkribus with linguistic annotation
@@ -290,9 +297,9 @@ CAHPOS3gr = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotPOS3grams = cahPlotCol(myCAH, k = 9, main = "POS 3-grams (Transkr/Boudams/Pie/Pie)")
-somCAH = somCluster(d)
-somCAHPOS3gr = somCAH
-somplotPOS3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - POS 3-grams")
+#somCAH = somCluster(d)
+#somCAHPOS3gr = somCAH
+#somplotPOS3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - POS 3-grams")
 ```
 
 ## Lemmas
@@ -330,9 +337,9 @@ CAHLemmas = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotLemmas = cahPlotCol(myCAH, k = 9, main = "Lemmas (Transkr/Boudams/Pie/Pie)")
-somCAH = somCluster(d)
-somCAHLemmas = somCAH
-somplotLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Lemmas")
+#somCAH = somCluster(d)
+#somCAHLemmas = somCAH
+#somplotLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Lemmas")
 ```
 
 ## Function words from lemmas
@@ -356,9 +363,9 @@ CAHFL = myCAH
 # barplot(sort(myCAH$height))
 plotFL = cahPlotCol(myCAH, k = 8, main = "Function Lemmas with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
-somCAH = somCluster(d)
-somCAHFL = somCAH
-somplotFL = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words (lemmas)")
+#somCAH = somCluster(d)
+#somCAHFL = somCAH
+#somplotFL = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Function words (lemmas)")
 ```
 
 # Affixes + POS 3-gr + Function words (lemmas)
@@ -375,9 +382,9 @@ CAHGlob = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotGlob = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (lemmas)")
-somCAH = somCluster(d)
-somCAHGlob = somCAH
-somplotGlob = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
+#somCAH = somCluster(d)
+#somCAHGlob = somCAH
+#somplotGlob = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (lemmas)")
 ```
 
 # Affixes + POS 3-gr + Function words (unnorm)
@@ -395,9 +402,9 @@ CAHGlob2 = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotGlob2 = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (unnorm.)")
-somCAH = somCluster(d)
-somCAHGlob2 = somCAH
-somplotGlob2 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
+#somCAH = somCluster(d)
+#somCAHGlob2 = somCAH
+#somplotGlob2 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
 ```
 
 
@@ -405,11 +412,11 @@ somplotGlob2 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- gr
 
 #### Classes members
 ```{r}
-classes = cutree(myCAH, k = 5)
+classes = cutree(myCAH, k = 9)
 classes
 ```
 ```{r, echo=FALSE}
-classlabels = c("A1", "A2B", "WAU", "C", "AndrCathAntechr")
+classlabels = c("1 (A1)", "3 (A2)", "4 (B2)", "5 (B1a)", "6 (B1b)", "7 (WAU)", "8 (Cx)", "2", "9 (C3)")
 ```
 
 #### Classes description
@@ -417,27 +424,33 @@ classlabels = c("A1", "A2B", "WAU", "C", "AndrCathAntechr")
 ##### Most correlated features to the classification in general
 
 ```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
-maDesc = classesDesc(myCAH, d, k=5)
+maDesc = classesDesc(myCAH, d, k = 9)
 head(maDesc$quanti.var, n = 20)
 
-A = myDescPlot(relativeFreqs(data)["mme^", , drop = FALSE], classes, type = "violinplot", main = "mme^", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-B = myDescPlot(relativeFreqs(data)["que", , drop = FALSE], classes, type = "violinplot", main = "que", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-C = myDescPlot(relativeFreqs(data)["CONcoo PROper VERcjg", , drop = FALSE], classes, type = "violinplot", main = "CONcoo.PROper.VERcjg", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-D = myDescPlot(relativeFreqs(data)["ls_", , drop = FALSE], classes, type = "violinplot", main = "ls_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-E = myDescPlot(relativeFreqs(data)["_fa", , drop = FALSE], classes, type = "violinplot", main = "_fa", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-F = myDescPlot(relativeFreqs(data)["$fai", , drop = FALSE], classes, type = "violinplot", main = "$fai", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+A = myDescPlot(relativeFreqs(data)["ls_", , drop = FALSE], classes, type = "violinplot", main = "ls_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+B = myDescPlot(relativeFreqs(data)["els^", , drop = FALSE], classes, type = "violinplot", main = "els^", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+C = myDescPlot(relativeFreqs(data)["que", , drop = FALSE], classes, type = "violinplot", main = "que", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+D = myDescPlot(relativeFreqs(data)["qil", , drop = FALSE], classes, type = "violinplot", main = "qil", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+E = myDescPlot(relativeFreqs(data)["CONsub PONfbl PROper", , drop = FALSE], classes, type = "violinplot", main = "CONsub.PONfbl.PROper", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+F = myDescPlot(relativeFreqs(data)["PONfrt CONcoo ADVgen", , drop = FALSE], classes, type = "violinplot", main = "PONfrt.CONcoo.ADVgen", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
+
+WauFeats2a = myDescPlot(relativeFreqs(data)["oi_", , drop = FALSE], classes, type = "violinplot", main = "oi_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats2b = myDescPlot(relativeFreqs(data)["tu", , drop = FALSE], classes, type = "violinplot", main = "tu", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats3 = myDescPlot(relativeFreqs(data)["com", , drop = FALSE], classes, type = "violinplot", main = "com", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats4 = myDescPlot(relativeFreqs(data)["PONfbl PROper VERcjg", , drop = FALSE], classes, type = "violinplot", main = "PONfbl PROper VERcjg", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+
 ```
 
 ##### Features and clusters (v-test, distribution,…): Wauchier 
 
 ```{r}
 nfeats = 10
-values = c(head(sort(maDesc$quanti$`3`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`3`[,1]), n = nfeats))
+values = c(head(sort(maDesc$quanti$`6`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`6`[,1]), n = nfeats))
 classBarplot(values, title="V-test for Wauchier class", ylab = "v-test")
 ```
 
-Example of two main feats of Wauchier class
+Example of two feats of Wauchier class
 ```{r}
 class = as.factor(classes)
 levels(class) = classlabels
@@ -445,14 +458,14 @@ levels(class) = c(levels(class), "LAMB")
 class["26_Ano_Leg-B_Ma_Ev_Vie_Lambert"] = "LAMB"
 #NB: 
 rf = cbind(as.data.frame(t(relativeFreqs(data))), class)
-qplot(qil, om_, colour=class, data = rf)
+qplot(`PONfbl PROper VERcjg`, com, colour=class, data = rf)
 ```
 
 ##### Specificities
 
 ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
 data = rbind(dataAffs, dataPOS3gr, dataFW)
-specifPlot(data, myCAH, k = 5)
+specifPlot(data, myCAH, k = 9, classlabels = classlabels)
 ```
 
 
@@ -471,9 +484,9 @@ CAHGlob3 = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotGlob3 = cahPlotCol(myCAH, k = 9, main = "Affixes + POS 3- grams + Function words (both)")
-somCAH = somCluster(d)
-somCAHGlob3 = somCAH
-somplotGlob3 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
+#somCAH = somCluster(d)
+#somCAHGlob3 = somCAH
+#somplotGlob3 = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Affixes + POS 3- grams + Function words (unnorm.)")
 ```
 
 # Exp. word-forms+lemmas
@@ -491,20 +504,20 @@ CAHWordsLemmas = myCAH
 #TODO: heights
 # barplot(sort(myCAH$height))
 plotWordsLemmas = cahPlotCol(myCAH, k = 9, main = "Word forms + lemmas")
-somCAH = somCluster(d)
-somCAHWordsLemmas = somCAH
-somplotWordsLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Word forms + lemmas")
+#somCAH = somCluster(d)
+#somCAHWordsLemmas = somCAH
+#somplotWordsLemmas = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Word forms + lemmas")
 ```
 
 ### Class descriptions, Wauchier and StLambert
 
 #### Classes members
 ```{r}
-classes = cutree(myCAH, k = 5)
+classes = cutree(myCAH, k = 9)
 classes
 ```
 ```{r, echo=FALSE}
-classlabels = c("A1+AndrCath", "A2", "B", "WAU", "C")
+classlabels = c("1 (≈A1)", "2 (Jq+André)", "3 (A2)", "4 (B)", "5 (B2)", "6 (WAU)", "8 (C)", "7 (WAU)", "9 (C3)")
 ```
 
 #### Classes description
@@ -512,23 +525,31 @@ classlabels = c("A1+AndrCath", "A2", "B", "WAU", "C")
 ##### Most correlated features to the classification in general
 
 ```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
-maDesc = classesDesc(myCAH, d, k=5)
+maDesc = classesDesc(myCAH, d, k = 9)
 head(maDesc$quanti.var, n = 20)
 
-A = myDescPlot(relativeFreqs(data)["que", , drop = FALSE], classes, type = "violinplot", main = "que", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-B = myDescPlot(relativeFreqs(data)["qil", , drop = FALSE], classes, type = "violinplot", main = "qil", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-C = myDescPlot(relativeFreqs(data)["dont", , drop = FALSE], classes, type = "violinplot", main = "dont", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-D = myDescPlot(relativeFreqs(data)["faire", , drop = FALSE], classes, type = "violinplot", main = "faire", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-E = myDescPlot(relativeFreqs(data)["nez", , drop = FALSE], classes, type = "violinplot", main = "nez", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-F = myDescPlot(relativeFreqs(data)["un", , drop = FALSE], classes, type = "violinplot", main = "un", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+A = myDescPlot(relativeFreqs(data)["decivre", , drop = FALSE], classes, type = "violinplot", main = "decivre", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+B = myDescPlot(relativeFreqs(data)["cesar", , drop = FALSE], classes, type = "violinplot", main = "cesar", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+C = myDescPlot(relativeFreqs(data)["decies", , drop = FALSE], classes, type = "violinplot", main = "decies", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+D = myDescPlot(relativeFreqs(data)["apostle", , drop = FALSE], classes, type = "violinplot", main = "apostle", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+E = myDescPlot(relativeFreqs(data)["decius", , drop = FALSE], classes, type = "violinplot", main = "decius", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+F = myDescPlot(relativeFreqs(data)["lorent", , drop = FALSE], classes, type = "violinplot", main = "lorent", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
+
+WauFeats5 = myDescPlot(relativeFreqs(data)["hom", , drop = FALSE], classes, type = "violinplot", main = "hom", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats6 = myDescPlot(relativeFreqs(data)["o4", , drop = FALSE], classes, type = "violinplot", main = "o4", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 ```
 
 ##### Features and clusters (v-test, distribution,…): Wauchier 
 
+**TWO WAUCHIER CLASSES**
+
 ```{r}
 nfeats = 10
-values = c(head(sort(maDesc$quanti$`4`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`4`[,1]), n = nfeats))
+values = c(head(sort(maDesc$quanti$`6`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`6`[,1]), n = nfeats))
+classBarplot(values, title="V-test for Wauchier class", ylab = "v-test")
+
+values = c(head(sort(maDesc$quanti$`8`[,1], decreasing = TRUE), n = nfeats), head(sort(maDesc$quanti$`8`[,1]), n = nfeats))
 classBarplot(values, title="V-test for Wauchier class", ylab = "v-test")
 ```
 
@@ -540,12 +561,9 @@ levels(class) = c(levels(class), "LAMB")
 class["26_Ano_Leg-B_Ma_Ev_Vie_Lambert"] = "LAMB"
 #NB: 
 rf = cbind(as.data.frame(t(relativeFreqs(data))), class)
-rf = rf[, c("ensemble", "qil", "que")]
+rf = rf[, c("hom", "pastor", "que")]
 # Two main of Wauchier class
-qplot(qil, ensemble, colour=class, data = rf)
-
-# TWO MOST CORRELATED TO CLUSTERS
-qplot(qil, que, colour=class, data = rf)
+qplot(hom, pastor, colour=class, data = rf)
 ```
 
 ##### Specificities
@@ -553,7 +571,7 @@ qplot(qil, que, colour=class, data = rf)
 ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
 #TODO: fix to take only the one that have been actually selected by the Moisl formula
 data = rbind(dataLemmas, dataWords)
-specifPlot(data, myCAH, k = 5)
+specifPlot(data, myCAH, k = 5, classlabels = classlabels)
 ```
 
 
@@ -727,32 +745,15 @@ RefcahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, Fun
 #RefcahListBis = replicateAnalysis(toKeepBis, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
 # 1. get Students analysis list
 #StudentsResults = replicateAnalysis(toKeepBis, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
-StudentsResults = replicateAnalysis(toKeep, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
-
-# 2. perform comparison
-comp1 = compareReplications(RefcahList, StudentsResults, k = 5)
-
-# 3. get Kraken analysis list
-KrakenResults = replicateAnalysis(toKeep, "data/kraken_nospace_raw_char3grams.csv", "data/kraken_nospace_expanded_words.csv", "data/kraken_nospace_pos3-gr.csv", "data/kraken_nospace_lemmas.csv", functionWords, functionLemmas)
-
-# 4. perform comparison
-comp2 = compareReplications(RefcahList, KrakenResults, k = 5)
-
-# 5. merge and output
-out = cbind(comp1, comp2)
-colnames(out) = c("Students", "Kraken")
-
-refs = c("raw3grams", "FWPOSandAffs", "WordsLemmas")
-suppl = rownames(out)[!rownames(out) %in% refs]
-# Geom mean all
-out = rbind(out, exp(colMeans(log(out))))
-# Geom mean refs
-out = rbind(out, exp(colMeans(log(out[refs, ]))))
-# Geom mean suppl
-out = rbind(out, exp(colMeans(log(out[suppl, ]))))
-rownames(out)[(length(rownames(out))-2):length(rownames(out))] =  c("geom mean all", "geom mean refs", "geom mean suppl")
-round(out, 2)
 ```
 
+
+# Supplementary material
+
+## Violin plots features
+
+```{r, warning=FALSE, fig.width=7.3, fig.height=14.6, out.width=1000, out.height=2000, dpi = 100}
+gridExtra::grid.arrange(WauFeats1, WauFeats2a, WauFeats2b, WauFeats3, WauFeats4, WauFeats5, WauFeats6, ncol = 2)
+```
 
 

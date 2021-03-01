@@ -510,17 +510,23 @@ classBarplot = function(values, title = "", ylab=""){
     xlab("feats")
 }
 
-specifPlot = function(freq_abs, myCAH, k = 5, nfeats = 5){
+#TODO: check this function
+specifPlot = function(freq_abs, myCAH, k = 5, nfeats = 5, classlabels = NULL){
   # freq_abs: absolute frequencies original data
   # myCAH : the CAH to cut
   # k : the number of classes
   # nfeats: number of positive and negative feats to 
   # TODO: Mieux, utiliser seuil de banalité
   classes = cutree(myCAH, k = k)
-  freq_abs_class = matrix(nrow = nrow(freq_abs), ncol = length(unique(classes)), dimnames = list(rownames(freq_abs), unique(classes)))
-  for(i in 1:length(unique(classes))){
+  classes = as.factor(classes)
+  if(!is.null(classlabels)){
+    levels(classes) = classlabels
+  }
+  
+  freq_abs_class = matrix(nrow = nrow(freq_abs), ncol = length(levels(classes)), dimnames = list(rownames(freq_abs), levels(classes)))
+  for(i in 1:length(levels(classes))){
     # sum the values for each member of the class
-    freq_abs_class[, i] = rowSums(freq_abs[, classes == i])
+    freq_abs_class[, i] = rowSums(freq_abs[, classes == levels(classes)[i]])
   }
   specs = textometry::specificities(freq_abs_class)
   
@@ -529,7 +535,7 @@ specifPlot = function(freq_abs, myCAH, k = 5, nfeats = 5){
     # et maintenant, on peut regarder les spécificités de la classe 1 
     # positives ou négatives
     values = c(head(sort(specs[, i], decreasing = TRUE), n = nfeats), head(sort(specs[, i]), n = nfeats))
-    plots[[i]] = classBarplot(values, title = paste("Specificities for class ", i),
+    plots[[i]] = classBarplot(values, title = paste("Specificities for class ", levels(classes)[i]),
                  ylab = "Specif.")
   }
   myfun <- get("grid.arrange", asNamespace("gridExtra"))
