@@ -7,6 +7,10 @@ N.B.: the `data` folder contains data generated with `stylo` from the raw text d
 If you need to generate new data, you will need to run the (commented-out) commands using stylo, 
 and then use `write.csv` to save them / `read.csv` to load them.
 
+
+**/!\ WORKFLOW IS POSSIBLY BUGGED. THERE IS A FIX IN THE newComputs branch**
+
+
 ## Generate analysis data
 
 To generate the analysis, you need to clone: https://github.com/PonteIneptique/dh-meier-data
