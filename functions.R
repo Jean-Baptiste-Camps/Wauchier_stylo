@@ -432,19 +432,16 @@ cahPlotCol = function(x, main="Plot", xlab = paste(ncol(x$data), "features"), k 
 
 #### Boxplots and descriptive statistics
 
-myDescPlot = function(x, type = "boxplot",  main = "", ylab = "freq", xlab = "", withOuville = FALSE){
-  names = c('CP', 'CT', 'M','R', 'S')
-  if(withOuville){
-    names = c(names, 'O')
+myDescPlot = function(x, type = "boxplot",  classes, main = "",
+                      ylab = "freq", xlab = "", classlabels = NULL){
+  # classes: list of classes (as per the output of cutree)
+  # classlabels : a vector of labels for classes, in the order
+  # of the classes number: i.e., label for class 1, label for class 2, etc.
+  if(!is.null(classlabels)){
+    classes = as.factor(classes)
+    levels(classes) = classlabels
   }
-  CORNEILLEP = x[,grepl('CORNEILLEP', colnames(x))]
-  CORNEILLET = x[,grepl('CORNEILLET', colnames(x))]
-  MOLIERE = x[,grepl('MOLIERE', colnames(x))]
-  ROTROU = x[,grepl('ROTROU', colnames(x))]
-  SCARRON = x[,grepl('SCARRON', colnames(x))]
-  if(withOuville){
-    OUVILLE = x[,grepl('OUVILLE', colnames(x))]
-  }
+  # TODO: fix all that follows
   if('counts' %in% type){
     return(list(CORNEILLEP, CORNEILLET, MOLIERE, ROTROU, SCARRON, OUVILLE))
   }
@@ -457,32 +454,12 @@ myDescPlot = function(x, type = "boxplot",  main = "", ylab = "freq", xlab = "",
       boxplot(list(CORNEILLEP, CORNEILLET, MOLIERE, ROTROU, SCARRON), names=names, main=main,ylab=ylab) 
     }
   }
+  # TODO: adapt violinplot
   if('violinplot' %in% type){ 
     #violinplot
-    data = cbind(as.data.frame(t(x)), sub("_.*$", "", colnames(x)))
-    colnames(data)[2] = "author"
-    
-    levels(data[,2]) = sub("CORNEILLEP","CP", levels(data[,2]))
-    levels(data[,2]) = sub("CORNEILLET","CT", levels(data[,2]))
-    levels(data[,2]) = sub("MOLIERE","M", levels(data[,2]))
-    levels(data[,2]) = sub("OUVILLE","O", levels(data[,2]))
-    levels(data[,2]) = sub("ROTROU","R", levels(data[,2]))
-    levels(data[,2]) = sub("SCARRON","S", levels(data[,2]))
-    levels(data[,2]) = sub("BOISSY","B", levels(data[,2]))
-    levels(data[,2]) = sub("DANCOURT","DA", levels(data[,2]))
-    levels(data[,2]) = sub("DUFRESNY","DU", levels(data[,2]))
-    levels(data[,2]) = sub("NIVELLE","N", levels(data[,2]))
-    levels(data[,2]) = sub("REGNARD","R", levels(data[,2]))
-    levels(data[,2]) = sub("VOLTAIRE","V", levels(data[,2]))
-    levels(data[,2]) = sub("BOURSAULT","B", levels(data[,2]))
-    levels(data[,2]) = sub("CHEVALIER","C", levels(data[,2]))
-    levels(data[,2]) = sub("DONNEAUDEVISE","DDV", levels(data[,2]))
-    levels(data[,2]) = sub("DORIMOND","DOR", levels(data[,2]))
-    levels(data[,2]) = sub("GILLET","G", levels(data[,2]))
-    levels(data[,2]) = sub("LAFONTAINE","LF", levels(data[,2]))
-    levels(data[,2]) = sub("QUINAULT","Q", levels(data[,2]))
-    
-    violinplot <- ggplot(data, aes_(x = quote(author), y = as.name(colnames(data)[1]))) +
+    data = cbind(as.data.frame(t(x)), as.character(classes))
+    colnames(data)[2] = "classes"
+    violinplot <- ggplot(data, aes_(x = quote(classes), y = as.name(colnames(data)[1]))) +
       ggtitle(main) +
       ylab(ylab) +
       xlab(xlab) +
@@ -518,6 +495,47 @@ classesDesc = function(x, y, k = "10"){
   classDesc = FactoMineR::catdes(dataClassif, num.var = length(dataClassif))
   return(classDesc)
 }
+
+classBarplot = function(values, title = "", ylab=""){ 
+  colors = vector(mode="logical", length = length(values))
+  colors[values>0] = TRUE
+  colors[values<=0] = FALSE
+  df = cbind(labels(values), as.data.frame(values), as.data.frame(colors))
+  colnames(df)[1] = "labels"
+  ggplot(df, aes(x = reorder(labels, values), y = values, fill = colors)) +
+    geom_col(position = "identity", colour = "black", size = 0.25) +
+    scale_fill_manual(values = c("#CCEEFF", "#FFDDDD"), guide = FALSE) +
+    ggtitle(title) +
+    ylab(ylab) +
+    xlab("feats")
+}
+
+specifPlot = function(freq_abs, myCAH, k = 5, nfeats = 5){
+  # freq_abs: absolute frequencies original data
+  # myCAH : the CAH to cut
+  # k : the number of classes
+  # nfeats: number of positive and negative feats to 
+  # TODO: Mieux, utiliser seuil de banalité
+  classes = cutree(myCAH, k = k)
+  freq_abs_class = matrix(nrow = nrow(freq_abs), ncol = length(unique(classes)), dimnames = list(rownames(freq_abs), unique(classes)))
+  for(i in 1:length(unique(classes))){
+    # sum the values for each member of the class
+    freq_abs_class[, i] = rowSums(freq_abs[, classes == i])
+  }
+  specs = textometry::specificities(freq_abs_class)
+  
+  plots = list()
+  for(i in 1:ncol(specs)){
+    # et maintenant, on peut regarder les spécificités de la classe 1 
+    # positives ou négatives
+    values = c(head(sort(specs[, i], decreasing = TRUE), n = nfeats), head(sort(specs[, i]), n = nfeats))
+    plots[[i]] = classBarplot(values, title = paste("Specificities for class ", i),
+                 ylab = "Specif.")
+  }
+  myfun <- get("grid.arrange", asNamespace("gridExtra"))
+  do.call("myfun", c(plots, ncol=2))
+} 
+
 
 ### Data manipulation
 
