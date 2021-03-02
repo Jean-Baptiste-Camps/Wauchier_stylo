@@ -745,6 +745,31 @@ RefcahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, Fun
 #RefcahListBis = replicateAnalysis(toKeepBis, "data/transkr_raw_char3grams.csv", "data/transkr_expanded_words.csv", "data/transkr_pos3-gr.csv", "data/transkr_lemmas.csv", functionWords, functionLemmas)
 # 1. get Students analysis list
 #StudentsResults = replicateAnalysis(toKeepBis, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
+StudentsResults = replicateAnalysis(toKeep, "data/transkr_student_raw_char3grams.csv", "data/transkr_student_expanded_words.csv", "data/transkr_student_pos3-gr.csv", "data/transkr_student_lemmas.csv", functionWords, functionLemmas)
+
+# 2. perform comparison
+comp1 = compareReplications(RefcahList, StudentsResults, k = 5)
+
+# 3. get Kraken analysis list
+KrakenResults = replicateAnalysis(toKeep, "data/kraken_nospace_raw_char3grams.csv", "data/kraken_nospace_expanded_words.csv", "data/kraken_nospace_pos3-gr.csv", "data/kraken_nospace_lemmas.csv", functionWords, functionLemmas)
+
+# 4. perform comparison
+comp2 = compareReplications(RefcahList, KrakenResults, k = 5)
+
+# 5. merge and output
+out = cbind(comp1, comp2)
+colnames(out) = c("Students", "Kraken")
+
+refs = c("raw3grams", "FWPOSandAffs", "WordsLemmas")
+suppl = rownames(out)[!rownames(out) %in% refs]
+# Geom mean all
+out = rbind(out, exp(colMeans(log(out))))
+# Geom mean refs
+out = rbind(out, exp(colMeans(log(out[refs, ]))))
+# Geom mean suppl
+out = rbind(out, exp(colMeans(log(out[suppl, ]))))
+rownames(out)[(length(rownames(out))-2):length(rownames(out))] =  c("geom mean all", "geom mean refs", "geom mean suppl")
+round(out, 2)
 ```
 
 

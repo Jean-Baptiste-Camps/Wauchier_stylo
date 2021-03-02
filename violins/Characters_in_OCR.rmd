@@ -1,7 +1,7 @@
 ---
-title: "Character repartitions"
-author: "Thibault Clérice"
-date: "10/23/2019"
+title: "Character distribution"
+author: "Thibault Clérice & JB Camps"
+date: "10/23/2019 - 2/03/2020"
 output: html_document
 ---
 
@@ -13,9 +13,34 @@ knitr::opts_chunk$set(echo = TRUE)
 library("ggplot2")
 ```
 
-# OCR Training set
 
-## Load data
+# Dispersion + Regression
+
+```{r}
+d = read.csv("chars_classes/datasets-characters.csv", header = TRUE)
+d = d[d[,1] != "Full",]
+
+qplot(size, classes, colour=dataset, data = d) + geom_smooth(method='lm', formula= y~x)
+
+# Global reg
+reg = lm(formula = classes ~ size, data = d)
+summary(reg)
+
+# reg students
+reg = lm(formula = classes ~ size, data = d[d[, "dataset"] == "students", ])
+summary(reg)
+
+# reg pinche
+reg = lm(formula = classes ~ size, data = d[d[, "dataset"] == "pinche", ])
+summary(reg)
+```
+
+
+# Violin plot version
+
+## OCR Training set
+
+### Load data
 
 ```{r}
 data = read.csv("pipeline/chars.csv", header = TRUE, row.names = 1)
@@ -25,7 +50,7 @@ data = cbind(data, "Pinche")
 colnames(data)[2] = "Corpus"
 ```
 
-# Students
+## Students
 
 ```{r}
 data_students = read.csv("pipeline/chars_students.csv", header = TRUE, row.names = 1)
@@ -33,7 +58,7 @@ data_students = cbind(data_students, "TNAH")
 colnames(data_students)[2] = "Corpus"
 ```
 
-# Text lengths
+## Text lengths
 
 ```{r, fig.width=5, fig.height=5, out.width=500, out.height=500, dpi = 300}
 #ggplot(c(df, df_students), aes(x="", y=occs)) + geom_violin() + geom_boxplot(width=0.2) + ylab("Characters with this count") + xlab("Est. count of characters in the TNAH Dataset") + scale_y_log10()
