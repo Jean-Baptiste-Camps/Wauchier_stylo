@@ -123,6 +123,7 @@ classlabels = c("1 (A1)", "2 (A2)", "3 (B)", "4 (B2)", "5 (WAU)", "6 (C?)", "9 (
 ```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
 maDesc = classesDesc(myCAH, d, k = 9)
 head(maDesc$quanti.var, n = 20)
+eta2Feats1 = head(maDesc$quanti.var, n = 20)
 
 A = myDescPlot(relativeFreqs(data)["m.m.e", , drop = FALSE], classes, type = "violinplot", main = "mme", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 B = myDescPlot(relativeFreqs(data)["o.m.m", , drop = FALSE], classes, type = "violinplot", main = "omm", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
@@ -132,7 +133,8 @@ E = myDescPlot(relativeFreqs(data)["l.s..", , drop = FALSE], classes, type = "vi
 F = myDescPlot(relativeFreqs(data)["i.h.e", , drop = FALSE], classes, type = "violinplot", main = "ihe", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
 # Save one for later
-WauFeats1 = myDescPlot(relativeFreqs(data)["q.i.l", , drop = FALSE], classes, type = "violinplot", main = "qil", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats1a = D
+WauFeats1b = myDescPlot(relativeFreqs(data)["q.i.l", , drop = FALSE], classes, type = "violinplot", main = "qil", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 ```
 
 ##### Features and clusters (v-test, distribution,…): Wauchier 
@@ -426,6 +428,7 @@ classlabels = c("1 (A1)", "3 (A2)", "4 (B2)", "5 (B1a)", "6 (B1b)", "7 (WAU)", "
 ```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
 maDesc = classesDesc(myCAH, d, k = 9)
 head(maDesc$quanti.var, n = 20)
+eta2Feats2 = head(maDesc$quanti.var, n = 20)
 
 A = myDescPlot(relativeFreqs(data)["ls_", , drop = FALSE], classes, type = "violinplot", main = "ls_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 B = myDescPlot(relativeFreqs(data)["els^", , drop = FALSE], classes, type = "violinplot", main = "els^", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
@@ -435,11 +438,14 @@ E = myDescPlot(relativeFreqs(data)["CONsub PONfbl PROper", , drop = FALSE], clas
 F = myDescPlot(relativeFreqs(data)["PONfrt CONcoo ADVgen", , drop = FALSE], classes, type = "violinplot", main = "PONfrt.CONcoo.ADVgen", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
 
-WauFeats2a = myDescPlot(relativeFreqs(data)["oi_", , drop = FALSE], classes, type = "violinplot", main = "oi_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-WauFeats2b = myDescPlot(relativeFreqs(data)["tu", , drop = FALSE], classes, type = "violinplot", main = "tu", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-WauFeats3 = myDescPlot(relativeFreqs(data)["com", , drop = FALSE], classes, type = "violinplot", main = "com", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-WauFeats4 = myDescPlot(relativeFreqs(data)["PONfbl PROper VERcjg", , drop = FALSE], classes, type = "violinplot", main = "PONfbl PROper VERcjg", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-
+#WauFeats2a = myDescPlot(relativeFreqs(data)["oi_", , drop = FALSE], classes, type = "violinplot", main = "oi_", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats2a = B
+WauFeats2b = myDescPlot(relativeFreqs(data)["$fai", , drop = FALSE], classes, type = "violinplot", main = "$fai", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
+WauFeats3a = myDescPlot(relativeFreqs(data)["tu", , drop = FALSE], classes, type = "violinplot", main = "tu", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats3b = myDescPlot(relativeFreqs(data)["com", , drop = FALSE], classes, type = "violinplot", main = "com", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats4a = myDescPlot(relativeFreqs(data)["CONcoo ADVgen VERcjg", , drop = FALSE], classes, type = "violinplot", main = "CONcoo ADVgen VERcjg", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats4b = myDescPlot(relativeFreqs(data)["PONfbl PROper VERcjg", , drop = FALSE], classes, type = "violinplot", main = "PONfbl PROper VERcjg", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 ```
 
 ##### Features and clusters (v-test, distribution,…): Wauchier 
@@ -527,6 +533,7 @@ classlabels = c("1 (≈A1)", "2 (Jq+André)", "3 (A2)", "4 (B)", "5 (B2)", "6 (W
 ```{r, warning=FALSE, fig.width=7.3, fig.height=7.3, out.width=1000, out.height=1000, dpi = 100}
 maDesc = classesDesc(myCAH, d, k = 9)
 head(maDesc$quanti.var, n = 20)
+eta2Feats3 = head(maDesc$quanti.var, n = 20)
 
 A = myDescPlot(relativeFreqs(data)["decivre", , drop = FALSE], classes, type = "violinplot", main = "decivre", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 B = myDescPlot(relativeFreqs(data)["cesar", , drop = FALSE], classes, type = "violinplot", main = "cesar", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
@@ -536,8 +543,10 @@ E = myDescPlot(relativeFreqs(data)["decius", , drop = FALSE], classes, type = "v
 F = myDescPlot(relativeFreqs(data)["lorent", , drop = FALSE], classes, type = "violinplot", main = "lorent", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 gridExtra::grid.arrange(A,B,C,D,E,F, ncol = 2)
 
-WauFeats5 = myDescPlot(relativeFreqs(data)["hom", , drop = FALSE], classes, type = "violinplot", main = "hom", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
-WauFeats6 = myDescPlot(relativeFreqs(data)["o4", , drop = FALSE], classes, type = "violinplot", main = "o4", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats5a = myDescPlot(relativeFreqs(data)["apostle", , drop = FALSE], classes, type = "violinplot", main = "apostle", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats5b = myDescPlot(relativeFreqs(data)["hom", , drop = FALSE], classes, type = "violinplot", main = "hom", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats6a = myDescPlot(relativeFreqs(data)["durement2", , drop = FALSE], classes, type = "violinplot", main = "durement2", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
+WauFeats6b = myDescPlot(relativeFreqs(data)["o4", , drop = FALSE], classes, type = "violinplot", main = "o4", ylab = "Relative frequency", xlab = "", classlabels = classlabels)
 ```
 
 ##### Features and clusters (v-test, distribution,…): Wauchier 
@@ -736,7 +745,7 @@ hist(out[, 2])
 # Controlling for pipeline bias
 
 
-```{r}
+```{r eval=FALSE}
 RefcahList = list(raw3grams = CAHRaw3gr, Affs = CAHAffs, FunctWords = CAHFW, FunctLemm = CAHFL, POS3gr = CAHPOS3gr, FWPOSandAffs = CAHGlob2, Forms = CAHForms,  Lemmas = CAHLemmas, WordsLemmas = CAHWordsLemmas)
 ##CAREFUL ###
 ####TEMPORARY FIX - DO REMOVE ME LATER#####
@@ -777,8 +786,23 @@ round(out, 2)
 
 ## Violin plots features
 
-```{r, warning=FALSE, fig.width=7.3, fig.height=14.6, out.width=1000, out.height=2000, dpi = 100}
-gridExtra::grid.arrange(WauFeats1, WauFeats2a, WauFeats2b, WauFeats3, WauFeats4, WauFeats5, WauFeats6, ncol = 2)
+```{r, warning=FALSE, fig.width=8, fig.height=2.45, out.width=1100, out.height=334, dpi = 100}
+gridExtra::grid.arrange(WauFeats1a,WauFeats1b, ncol = 2)
 ```
 
+```{r, warning=FALSE, fig.width=8, fig.height=7.3, out.width=1100, out.height=1000, dpi = 100}
+gridExtra::grid.arrange(WauFeats2a,WauFeats2b, WauFeats3a, WauFeats3b, WauFeats4a, WauFeats4b, ncol = 2)
+```
+
+```{r, warning=FALSE, fig.width=8, fig.height=4.9, out.width=1100, out.height=667, dpi = 100}
+gridExtra::grid.arrange(WauFeats5a,WauFeats5b, WauFeats6a, WauFeats6b, ncol = 2)
+```
+
+## Eta2 classifications
+
+```{r}
+write.csv(eta2Feats1, file = "data/eta2feats1.csv")
+write.csv(eta2Feats2, file = "data/eta2feats2.csv")
+write.csv(eta2Feats3, file = "data/eta2feats3.csv")
+```
 

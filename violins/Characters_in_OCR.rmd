@@ -20,7 +20,12 @@ library("ggplot2")
 d = read.csv("chars_classes/datasets-characters.csv", header = TRUE)
 d = d[d[,1] != "Full",]
 
+# Both
 qplot(size, classes, colour=dataset, data = d) + geom_smooth(method='lm', formula= y~x)
+# Only reg line for Pinche
+qplot(size, classes, colour=dataset, data = d) + geom_smooth(method='lm', formula= y~x, data = d[ d[, "dataset"] ==  "pinche",])
+# Only short texts
+qplot(size, classes, colour=dataset, data = d[d[, "size"] < 30000,]) #+ geom_smooth(method='lm', formula= y~x)
 
 # Global reg
 reg = lm(formula = classes ~ size, data = d)
@@ -33,6 +38,7 @@ summary(reg)
 # reg pinche
 reg = lm(formula = classes ~ size, data = d[d[, "dataset"] == "pinche", ])
 summary(reg)
+
 ```
 
 
