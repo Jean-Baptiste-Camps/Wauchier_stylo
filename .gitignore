@@ -2,3 +2,5 @@
 *.pdf
 .R*
 *.log
+.RData
+.Rhistory
