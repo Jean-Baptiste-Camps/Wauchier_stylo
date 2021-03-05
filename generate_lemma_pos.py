@@ -39,13 +39,13 @@ if __name__ == "__main__":
         for inp_fp in paths:
             key = cleaner(inp_fp)
             with open(inp_fp) as inp:
-                reader = csv.DictReader(inp, delimiter="\t")
+                reader = csv.DictReader(inp, delimiter="\t", quotechar="¥")
 
                 last_pos = []
 
                 for line in reader:
                     lemmas[key][line["lemma"]] += 1
-                    last_pos.append(line["pos"])
+                    last_pos.append(line["POS"])
 
                     if len(last_pos) > 3:
                         last_pos = last_pos[1:]
