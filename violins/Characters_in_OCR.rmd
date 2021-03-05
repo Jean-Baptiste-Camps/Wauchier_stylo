@@ -20,6 +20,8 @@ library("ggplot2")
 d = read.csv("chars_classes/datasets-characters.csv", header = TRUE)
 d = d[d[,1] != "Full",]
 
+qplot(size, classes, colour=dataset, data = d)
+
 # Both
 qplot(size, classes, colour=dataset, data = d) + geom_smooth(method='lm', formula= y~x)
 # Only reg line for Pinche
