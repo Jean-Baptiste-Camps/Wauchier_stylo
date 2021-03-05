@@ -1,7 +1,7 @@
 ---
 title: "Wauchier"
 author: "JB Camps"
-date: "23 novembre 2018 / 30 juin 2019 (Paris, Rome, Turin, Eurostar, )"
+date: "23 novembre 2018 / 30 juin 2019 (Paris, Rome, Turin, Eurostar, ) / 5 mars 2021"
 output:
   html_document: default
   pdf_document: default
@@ -12,10 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <!-- TODO: 
-- est-ce que la coupe en 8 classes est la plus pertinente philologiquement? Voir avec Ariane.
 - remove all punctuation;
-- virer Bestiaire et Response?
-- concaténer textes trop courts pour gagner un peu de fiabilité?
 - groupe 41-45: est-ce que ça mériterait d'être un autre légendier ? Car pas forcément dans C.
 -->
 
@@ -37,7 +34,7 @@ source("functions.R")
 
 ```{r}
 # Get data with Stylo
-# data = stylo::load.corpus.and.parse(corpus.dir = "~/dev/dh-meier/output/transkribus-etudiants/tokenized/boudams", features = "w", ngram.size = 1, preserve.case = FALSE)
+# data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/transkribus-etudiants/tokenized/boudams", features = "w", ngram.size = 1, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
@@ -73,7 +70,7 @@ ggplot(df, aes(x="", y=nwords)) + geom_violin() + geom_boxplot(width=0.3) +  the
 
 ```{r}
 # Get data with Stylo
-#data = stylo::load.corpus.and.parse(corpus.dir = "~/dev/dh-meier/output/transkribus-etudiants/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
+#data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/transkribus-etudiants/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 # Get freq lists
 #data = stylo::make.table.of.frequencies(corpus = data, features = unique(sort(unlist(data))), relative = FALSE)
 # Write it
@@ -104,19 +101,9 @@ CAHRaw3gr = myCAH
 # barplot(sort(myCAH$height))
 plotRaw3grams = cahPlotCol(myCAH, k = 9, main = "Characters 3-grams from raw data (Transkr)")
 
-somCAH = somCluster(d)
-somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
+#somCAH = somCluster(d)
+#somplotRaw3grams = cahPlotCol(somCAH, k = 9, main = "SOM BASED - Characters 3-grams from raw data (Transkr)")
 ```
-
-<!--
-# Transkribus tokenized data
-
-## Affixes from tokenized data
-
-## Unstandardised words from tokenized data
-
-## Unstandardised function words from tokenized data
--->
 
 # Transkribus expanded data
 
@@ -307,7 +294,7 @@ myCAH = cluster::agnes(t(d), metric = "manhattan", method="ward")
 # Save
 CAHFL = myCAH
 # barplot(sort(myCAH$height))
-data = stylo::load.corpus.and.parse(corpus.dir = "~/dev/dh-meier/output/transkribus-etudiants/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
+data = stylo::load.corpus.and.parse(corpus.dir = "../dh-meier-data/output/transkribus-etudiants/raw/", features = "c", ngram.size = 3, preserve.case = FALSE)
 plotFL = cahPlotCol(myCAH, k = 8, main = "Function Lemmas with pronouns and auxiliaries\n(Transkr/Boudams/Pie)")
 #plotCol(myCAH, main = "toto")
 somCAH = somCluster(d)
@@ -351,7 +338,7 @@ gridExtra::grid.arrange(plotRaw3grams, plotForms, plotAffixes, plotFW, plotLemma
 
 
 ```{r, warning=FALSE, fig.width=14.6, fig.height=21.9, out.width=1000, out.height=1500, dpi = 100}
-gridExtra::grid.arrange(somplotRaw3grams, somplotForms, somplotAffixes, somplotFW, somplotLemmas, somplotFL, somplotPOS3grams, somplotGlob, ncol = 2)
+#gridExtra::grid.arrange(somplotRaw3grams, somplotForms, somplotAffixes, somplotFW, somplotLemmas, somplotFL, somplotPOS3grams, somplotGlob, ncol = 2)
 ```
 
 ## Robustness
